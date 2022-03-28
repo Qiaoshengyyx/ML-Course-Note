@@ -1,0 +1,713 @@
+\documentclass[UTF8]{ctexart}
+\usepackage{amsmath, enumerate, float, amssymb, lmodern}
+\usepackage{multirow} %用于跨行
+\usepackage{graphicx}%这是一个图片宏包，可处理图片的尺寸
+\usepackage{float}
+\usepackage{amssymb}
+\usepackage{fancybox}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[colorlinks,
+            linkcolor=black,
+            anchorcolor=green,
+            citecolor=blue]{hyperref}%这个宏包是用于实现跳转功能的
+
+\usepackage{geometry}
+\geometry{a4paper,scale=0.8}
+
+
+\renewcommand{\algorithmicrequire}{ \textbf{Input:}} %Use Input in the format of Algorithm
+\renewcommand{\algorithmicensure}{ \textbf{Output:}} %Use Output in the format of Algorithm
+\renewcommand{\algorithmicrepeat}{ \textbf{Loop:}} %Use Loop in the format of Algorithm
+
+\title{机器学习笔记}
+\author{Yuxuan Yuan \& Lulu Cao}
+\date{2022.2.21}
+\begin{document}
+\maketitle
+
+\newpage
+\tableofcontents
+
+\newpage
+
+\section{Lecture 1}
+2022.2.21
+第一节课是在C103上的，啥也没带oh
+lambda 含义
+
+
+\newpage
+\section{Lecture 2}
+2022.2.28
+yyx忘了记录板书 oh
+
+\subsection{课堂回顾}
+\paragraph{机器学习=lambda} 
+ : 机器 = 函数；学习 = 拟合 \newline   
+Machine Learning = LAMBDA. Loss,Algorithm, Model, BigData, Application。
+
+\textbf{BigData} $D=\{( \boldsymbol{x}_{n},y_n)\}_{n=1}^{N}$，其中$x_n \in R^N$，$y\in R$
+\begin{equation*}
+    \boldsymbol{y}=\left[\begin{array}{l}
+                            y_{1} \\
+                            y_{2} \\
+                            \vdots \\
+                            y_{N}
+                        \end{array}\right]
+        \ ,  \ \ \
+    \boldsymbol{w}=\left[\begin{array}{l}
+                            w_{1} \\
+                            w_{2} \\
+                            \vdots \\
+                            w_{d}
+                        \end{array}\right]
+        \ ,  \ \ \
+    \boldsymbol{X}=\left[\begin{array}{c}
+                            \boldsymbol{x}_{1}^{\mathrm{T}} \\
+                            \boldsymbol{x}_{2}^{\mathrm{T}} \\
+                            \vdots \\
+                            \boldsymbol{x}_{N}^{\mathrm{T}}
+                        \end{array}\right]
+\end{equation*}
+
+\textbf{Model}  
+\begin{equation*}
+    y=\boldsymbol{w^Tx}    
+\end{equation*}
+
+\textbf{Loss} 
+\begin{equation*}
+    \mathcal{L}_2(\boldsymbol{w})=\frac{1}{N} \sum_{n=1}^{N}\left(y_{n}-\boldsymbol{w}^{\mathrm{T}} \boldsymbol{x}_{n}\right)^{2}    
+\end{equation*}
+将上述式子矩阵化，
+\begin{equation*}
+    \begin{aligned}
+		\mathcal{L}_2(\boldsymbol{w}) &=\frac{1}{N}(\boldsymbol{X} \boldsymbol{w}-\boldsymbol{y})^{\mathrm{T}}(\boldsymbol{X} \boldsymbol{w}-\boldsymbol{y}) \\
+		&=\frac{1}{N}\left((\boldsymbol{X} \boldsymbol{w})^{\mathrm{T}}-\boldsymbol{y}^{\mathrm{T}}\right)(\boldsymbol{X} \boldsymbol{w}-\boldsymbol{y}) \\
+		&=\frac{1}{N}(\boldsymbol{X} \boldsymbol{w})^{\mathrm{T}} \boldsymbol{X} \boldsymbol{w}-\frac{1}{N} \boldsymbol{y}^{\mathrm{T}} \boldsymbol{X} \boldsymbol{w}-\frac{1}{N}(\boldsymbol{X} \boldsymbol{w})^{\mathrm{T}} \boldsymbol{y}+\frac{1}{N} \boldsymbol{y}^{\mathrm{T}} \boldsymbol{y} \\
+		&=\frac{1}{N} \boldsymbol{w}^{\mathrm{T}} \boldsymbol{X}^{\mathrm{T}} \boldsymbol{X} \boldsymbol{w}-\frac{2}{N} \boldsymbol{w}^{\mathrm{T}} \boldsymbol{X}^{\mathrm{T}} \boldsymbol{y}+\frac{1}{N} \boldsymbol{y}^{\mathrm{T}} \boldsymbol{y}
+		\end{aligned}
+\end{equation*}
+
+\textbf{Algorithm} 对损失函数求导，并令其等于0
+\begin{equation*}
+    \begin{aligned}
+		\frac{\partial \mathcal{L}_2}{\partial w} &=\frac{2}{N} \boldsymbol{X}^{\mathrm{T}} \boldsymbol{X} \boldsymbol{w}-\frac{2}{N} \boldsymbol{X}^{\mathrm{T}} \boldsymbol{y}=0 \\
+		\boldsymbol{X}^{\mathrm{T}} \boldsymbol{X} \boldsymbol{w} &=\boldsymbol{X}^{\mathrm{T}} \boldsymbol{y}
+		\end{aligned}
+\end{equation*}
+
+\textbf{矩阵求导相关}
+\begin{center} 
+    \shadowbox{\parbox{0.5\linewidth}{
+        \begin{equation*}
+            \begin{array}{c|c}
+                f(w) & \frac{\partial f}{\partial w} \\
+                \hline w^{\mathrm{T}} \boldsymbol{x} & \boldsymbol{x} \\
+                \boldsymbol{x}^{\mathrm{T}} w & \boldsymbol{x} \\
+                w^{\mathrm{T}} w & 2 w \\
+                w^{\mathrm{T}} \boldsymbol{C} w & 2 \boldsymbol{C} w \\
+                \hline
+            \end{array}
+        \end{equation*}
+    }}
+\end{center}
+从而,
+\begin{equation*}
+    \boldsymbol{w}=\left(\boldsymbol{X}^{\mathrm{T}} \boldsymbol{X}\right)^{-1} \boldsymbol{X}^{\mathrm{T}} \boldsymbol{y}
+\end{equation*}
+
+\subsection{投影矩阵 \& Normal Equation}
+
+\subsection{增加新的数据(样本数 or 特征维度)}
+作为作业，当$\boldsymbol{X}$增加一行(样本数增加) 或者 增加一列(特征维度增加) 时，$\boldsymbol{W}$ 如何变化，
+写出更新后的$\boldsymbol{W}$和更新前的$\boldsymbol{W}$之间的增量表达式。
+
+\textbf{相关公式}
+\begin{center} 
+    \shadowbox{\parbox{\linewidth}{
+        \begin{itemize}
+            \item \textbf{Sherman-Morrison公式} \begin{equation*}
+                \left(A+u v^{T}\right)^{-1}=A^{-1}-\frac{A^{-1} u v^{T} A^{-1}}{1+v^{T} A^{-1} u}
+            \end{equation*}
+            \item \textbf{分块矩阵求逆}  ~ 设 $A$ 是 $m \times m$ 可逆矩阵, $B$ 是 $m \times n$ 矩阵, 
+            $C$ 是 $n \times m$ 矩阵, $D$ 是 $n \times n$ 矩阵, $D-C A^{-1} B$ 是 $n \times n$ 可逆矩阵, 则有 
+            \begin{equation*}
+                \left[\begin{array}{ll}
+                    A & B \\
+                    C & D
+                    \end{array}\right]^{-1}=\left[\begin{array}{cc}
+                    A^{-1}+A^{-1} B\left(D-C A^{-1} B\right)^{-1} C A^{-1} & -A^{-1} B\left(D-C A^{-1} B\right)^{-1} \\
+                    -\left(D-C A^{-1} B\right)^{-1} C A^{-1} & \left(D-C A^{-1} B\right)^{-1}
+                    \end{array}\right]
+            \end{equation*}
+        \end{itemize}
+        
+    }}
+\end{center}
+
+\subsection{人工智能的流派}
+\begin{itemize}
+    \item 类比主义：核方法、SVM
+    \item 连接主义：神经网络
+    \item 贝叶斯主义
+    \item 符号主义：决策树、专家系统
+    \item 演化主义（优化算法）：遗传算法
+    \item 行为主义：强化学习
+\end{itemize}
+
+\subsection{人脸识别}
+设$D$为人脸的数据, $D=\{( \boldsymbol{x}_{n},y_n)\}_{n=1}^{N}$，
+其中$x_n \in R^N$，$y\in [1,100]$, $y_i=w^Tx_i+\epsilon,\epsilon\sim W(0,\sigma^2) $，$\sigma^2=1$,
+则$y_i \sim W(w^Tx_i,1)$
+
+方差一样，所以一样胖；均值不一样，所以location不同
+
+找到一个$w$，使得$y_i$出现的概率最大, 即$P(y_i|w^Tx,1)=\frac{1}{\sqrt{2\pi}}exp{-\frac{1}{2}(\frac{y_i-w^Tx}{1})^2}$
+\begin{equation*}
+    L=p\left(\boldsymbol{y} \mid \boldsymbol{X}, w, \sigma^{2}\right)=\prod_{n=1}^{N} p\left(y_{n} \mid \boldsymbol{x}_{n}, w, \sigma^{2}\right)=\prod_{n=1}^{N} \mathcal{N}\left(w^{\mathrm{T}} \boldsymbol{x}_{n}, \sigma^{2}\right)
+\end{equation*}
+取对数, 有 
+\begin{equation*}
+    \begin{aligned}
+        \log L &=\sum_{n=1}^{N} \log \left(\frac{1}{\sqrt{2 \pi \sigma^{2}}} \exp \left\{-\frac{1}{2 \sigma^{2}}\left(y_{n}-f\left(\boldsymbol{x}_{n} ; \boldsymbol{w}\right)\right)^{2}\right\}\right) \\
+        &=\sum_{n=1}^{N}\left(-\frac{1}{2} \log (2 \pi)-\log \sigma-\frac{1}{2 \sigma^{2}}\left(y_{n}-f\left(\boldsymbol{x}_{n} ; w\right)\right)^{2}\right) \\
+        &=-\frac{N}{2} \log 2 \pi-N \log \sigma-\frac{1}{2 \sigma^{2}} \sum_{n=1}^{N}\left(y_{n}-f\left(\boldsymbol{x}_{n} ; w\right)\right)^{2}
+    \end{aligned}
+\end{equation*}
+
+$w^{\mathrm{T}} \boldsymbol{x}_{n}$ 替换模型中的决定性部分, 对数似然表达式就呈现如下的形式： $\log L=-\frac{N}{2} \log 2 \pi-N \log \sigma-\frac{1}{2 \sigma^{2}} \sum_{n=1}^{N}\left(y_{n}-w^{\mathrm{T}} \boldsymbol{x}_{n}\right)^{2}$
+得到的最小二乘解, 通过求导数、使其等于零以及求解拐点的方法, 类似于 $1.1 .4$ 节所述的方式。对于 $w$ (注意, $w^{\mathrm{T}} \boldsymbol{x}_{n}=\boldsymbol{x}_{n}^{\mathrm{T}} \boldsymbol{w}$ ),
+
+最小二乘法和极大似然估计是等价的
+\newpage
+
+\section{Lecture 3}
+2022.3.7
+
+\textbf{Outline}
+\begin{enumerate}
+    \item Least Square: MLE 
+    \begin{enumerate}
+        \item[1.1] SGD
+        \item[1.2] Probalistic Graph Representation
+        \item[1.3] $ \mathbb{E}[\hat w] / cov[\hat w] $
+        \item[1.4] bias / variance
+    \end{enumerate}
+    
+    \item Revisted LS: Curve Fitting
+    \begin{enumerate}
+        \item[2.1] Model Selection
+        \item[2.2] Overfitting
+    \end{enumerate}
+    \item How to solve overfitting
+    \begin{enumerate}
+        \item[3.1] Regularization (MAP)
+        \item[3.2] Bayesian Learning
+    \end{enumerate}
+\end{enumerate}
+
+\newpage
+\section{Lecture 4}
+2022.3.14
+
+使用MLE/MAP/Bayes Learning三种方法来求解参数，通过4个例子来加深。Example 4没讲完。
+其中Example 3的三种解法需要自己课后补充。
+
+tips: to be added
+三个图 对应生成式模型、判别式模型、分布计算;
+一些前置 discrete continuous 的概率表 变量分布；
+有积分的地方 和 是求谁的期望的地方，
+
+
+\textbf{Outline}
+\begin{itemize}
+    \item MLE / MAP / Bayesian
+    \item Example 1. Bernoulli
+    \item Example 2. Gaussian
+    \item Example 3. Linear Regression
+    \item Example 4. Logistic Regression
+\end{itemize}
+问题：
+\begin{itemize}
+    \item 共轭分布是什么意思
+    \item $\beta$分布
+\end{itemize}
+
+\subsection{Example 1. Bernoulli}
+Given dataset $D=\{<x_i>\}_{i=1}^n, x_i \in \{0,1\}$
+$x_i$服从Bernoulli分布，$P(x_i=1)=\theta$;
+再假设$n_1$表示$D$中$x_i=1$的个数；
+
+\textbf{Method}
+
+1. MLE 
+\begin{align*}
+    P(D|\theta) &= \prod_{i=1}^n P(x_i; \theta) \\
+    &= \prod_{i=1}^n \theta^{x_i} (1-\theta)^{1-x_i} \\
+    &= \theta^{\sum_i x_i} (1-\theta)^{n-\sum_i x_i} \\
+    &= \theta^{n_1} (1-\theta)^{n-n_1} \\
+\end{align*}
+取对数以便计算，从而
+\begin{align*}
+    \underset {\theta} {\arg \max} \ln P(D|\theta) &= \underset {\theta} {\arg \max} n_1 \ln \theta + (n-n_1) \ln (1-\theta) \\
+\end{align*}
+对$\theta$求导
+\begin{equation*}
+    \frac{n_1}{\theta} - \frac{n-n_1}{1-\theta} = 0
+\end{equation*}
+得到 $\theta = \frac{n_1}{n}$
+
+
+2. MAP
+
+Beta分布 $Beta(\theta \mid a, b)$
+$P(\theta | D) \propto P()$ 
+
+\begin{center} 
+\shadowbox{\parbox{\linewidth}{
+    贝塔分布（Beta Distribution) 是一个作为伯努利分布和二项式分布的共轭先验分布的密度函数。在概率论中，贝塔分布，也称Β分布，是指一组定义在(0,1) 区间的连续概率分布。    
+}}
+\end{center}
+
+3. Bayesian
+
+
+\subsection{Example 2. Gaussian}
+
+\textbf{Method}
+
+1. MLE 
+
+2. MAP
+
+3. Bayesian
+
+\subsection{Example 3. Linear Regression}
+Given dataset $D=\{<x_i, y_i>\}_{i=1}^n, y_i \in \mathbb{R}$,
+假设 $X ~ \mathcal{N}(\theta, \sigma^2)$，则有
+$P(x;\theta) = \frac{1}{\sigma \sqrt{2\pi}}\exp\{-\frac{(x-\theta)^2}{2\sigma^2}\}$
+
+\textbf{Method}
+
+1. MLE 
+
+2. MAP
+
+3. Bayesian
+
+\subsection{Example 4. Logistic Regression}
+
+\textbf{Method}
+
+1. MLE 
+
+2. MAP
+3. Bayesian
+
+\textbf{计算步骤(流程)总结}
+
+\begin{enumerate}
+    \item $P(D|\theta)$
+    \item $P(\theta)$
+    \item $P(\theta|D) \propto P(D | \theta)P(\theta)$
+    \item $\theta_{bayes} = \mathbb{E}[\theta | D]$
+    \item inference: $P(y_{new}|D,x_{new})=\int p(y_{new}|x_{new}, \theta)p(\theta | D)$
+\end{enumerate}
+其中$D = (X,Y)$
+
+
+\newpage
+
+\section{Lecture 5}
+2022.3.21
+
+
+\textbf{Outline}
+\begin{enumerate}
+    \item Review: MLE / MAP / Bayesian Estimation
+    \item Logistic Regression
+    \item Perceptron
+    \item Generative Classification Model
+        \subitem x is continuous (GDA)
+        \subitem x is discrete (NB)
+\end{enumerate}
+
+\dotfill
+
+\textbf{Data}: $D={<x_i, y_i>}_{i=1}^n, x_i \in \mathbb{R}^d, y_i\in{0,1}, D=(X,Y)$ 
+
+\textbf{Model}: $P(x,y; \Theta)$(生成式) ; $P(y|x; \Theta)$(判别式) ; $P(x_i; \Theta)$无监督
+
+\textbf{Inference}: Given $x, D$; Output $y$, $P(y|x, D)=?$
+
+\textbf{Learning}: Given $D$; Output $\Theta$, $P(D|\Theta)$, $\Theta_{Bayes}=\mathbb{E}[\Theta|D]$
+
+\dotfill
+
+\subsection{Review: MLE / MAP / Bayesian}
+三种方法，即Learning的三种方法
+\subsubsection*{\textbf{Learning}} 
+
+\textbf{1. MLE }
+
+
+\begin{equation*}
+    \begin{aligned}
+        \hat \Theta_{MLE} &= \underset{\Theta}{\arg \max} P(D | \Theta)     \\
+        &= \underset{\Theta}{\arg \max} \sum_{i=1}^n \ln P( \textit{blank} ; \Theta) \\
+    \end{aligned}
+\end{equation*}
+其中，\textit{blank}可以填入1)$x_i, y_i$; 2)$y_i|x_i$; 3)$x_i$; 即三种模型都可用MLE求解
+
+\textbf{2. MAP}
+
+\begin{equation*}
+    \begin{aligned}
+        \hat \Theta_{MAP} &= \underset{\Theta}{\arg \max} P(\Theta | D)  \propto P(D|\Theta)P(\Theta)   \\
+        &= \underset{\Theta}{\arg \max} \ln P( \textit{blank} ; \Theta) + \ln P(\Theta)\\
+    \end{aligned}
+\end{equation*}
+其中，$P(\Theta)$是先验，$P(D|\Theta)$是似然，等式的最后$\ln P( \textit{blank} $为数据项（Data Term）， 
+$\ln P(\Theta)$为正则项(Regularization Term, 或平滑项(Smooth Term))。
+
+* 当$P(\Theta)$是均匀分布时， $MLE=MAP$ 。
+
+
+\textbf{3. Bayesian Estimation}
+
+(前提是$P(\Theta | D)$即后验分布已知)
+
+\begin{equation*}
+    \hat \Theta_{Bayes} = \mathbb{E}[\Theta | D ] = E_{\theta \sim P(\cdot | D)}[\Theta] = \int \Theta p(\Theta | D) d\Theta
+\end{equation*}
+
+
+\subsubsection*{\textbf{Inference}}
+
+利用上述三种方法做参数估计后的推理方法
+
+
+\textbf{1. MLE}
+
+Given $\hat \Theta_{MLE}, x, D$, ouput $P(y | x; \hat \Theta_{MLE} )$.
+
+举例，在Logistic Regression中，$P(y=1|x;\hat \Theta_{MLE} )=\sigma({\hat \Theta_{MLE} }^T x)$
+
+\textbf{2. MAP}
+
+Given $\hat \Theta_{MAP}, x, D$, output $P(y | x; \hat \Theta_{MAP} )$.
+
+举例，在Logistic Regression中，$P(y=1|x;\hat \Theta_{MAP} )=\sigma({\hat \Theta_{MAP} }^T x)$
+
+\textbf{3.Bayes Estimation}
+
+Given $ x, D, P(\Theta|D)$, ouput $P(y | x; \hat \Theta_{MAP} )$.
+\begin{equation*}
+    \begin{aligned}
+        P(y|x;D) &= \int p(y, \Theta | x;D) d\Theta    \\
+        &= \int p(\Theta | x;D)p(y|\Theta,x;D)d\Theta
+    \end{aligned}    
+\end{equation*}
+等式最后的$p(\Theta | x;D)$为后验分布，$p(y|\Theta,x;D)$为模型。
+能这么做的前提是假设$x_{new}$与$\Theta$无关。
+
+如果求$y=1$, 有
+\begin{equation*}
+    \begin{aligned}
+        p(y|\Theta,x;D)&=\int p(\Theta|D)\sigma(\Theta^T x)dx ～ (= \mathbb{E}_{{\Theta} \sim P(\cdot |D)}[\sigma(\Theta^Tx)] \\
+        &\approx \frac{1}{\mathcal{L}} \sum_{i=1}^{\mathcal{L}} \sigma((\Theta^{(i)})^Tx)
+    \end{aligned}
+\end{equation*}
+其中有假设$x_{new}$与$\Theta$相互独立；$\Theta^{(i)} \sim P(\Theta |D))), i=1,...,\mathcal{L}$, 上面公式使用了抽样技术(Sampling)来求期望。
+
+\subsection{Logistic Regression(逻辑斯蒂回归)}
+补点图 概率图模型 （可观测量用灰色阴影）
+
+\subsubsection*{\textbf{Learning}}
+
+\textbf{1.MLE}
+\begin{equation*}
+    P(y_i|x_i;\Theta) = \sigma(\Theta^T x_i)^{y_i} (1-\sigma(\Theta^Tx_i))^{1-y_i}
+\end{equation*}
+
+\begin{equation*}
+    \begin{aligned}
+        lnP(D|\Theta) &= \sum_{i=1}^n \{y_i\ln\sigma_i +(1-y_i)\ln(1-\sigma_i)\}    \\
+        &= \mathcal{L}_D(\Theta)
+    \end{aligned}
+\end{equation*}
+其中$\sigma_i=\sigma(a_i)=\sigma(\Theta^Tx_i)=\frac{1}{1+e^{\Theta^Tx_i}}$， 从而
+\begin{equation*}
+    \Theta^* = \underset{\Theta}{\arg \max} {\mathcal{L}_D(\Theta)}
+\end{equation*}
+到这里，求解$\Theta^*$方法有 求偏导数并等于0来计算解析解，但无法做到，原因如下,利用链式法则算一下偏导数
+\begin{equation*}
+    \begin{aligned}
+        \nabla_\Theta \mathcal{L}_D(\Theta) &=\frac{\partial \mathcal{L}_D ( \Theta) }{\partial \Theta} \\
+        &= \frac{\partial\mathcal{L}_D ( \Theta)}{\partial \sigma_i}\frac{\partial \sigma_i}{\partial a_i}\frac{\partial a_i}{\partial \Theta}\\
+        &= \sum_{i=1}^n(\frac{y_i}{\sigma_i}-\frac{1-y_i}{1-\sigma_i})\sigma_i(1-\sigma_i)x_i \\
+        &= \sum_{i=1}^n(y_i-\sigma_i)x_i
+    \end{aligned}
+\end{equation*}
+试试，几乎无法求得解析解。
+
+第二种方法，尝试二阶导数$\nabla_\Theta(\nabla_\Theta \mathcal{L}_D(\Theta) )$， 令$\nabla_\Theta \mathcal{L}_D(\Theta) =g$,
+
+\begin{algorithm}[htb]
+    \caption{A1: Gradient Ascent for Logistic Regression}
+    \label{alg:A1}
+    \begin{algorithmic}[1]
+    \REQUIRE
+    X, Y; \\
+    \ENSURE 
+    $\Theta$; \\
+    \STATE init: $\Theta \sim \mathcal{N}(0, \alpha^{-1}\mathrm{I}), \epsilon$
+    \REPEAT 
+    \STATE $g=\mathbf{X}^T(\mathbf{Y}-\sigma)$
+    \STATE $\Theta^{t+1} := \Theta^t + \eta g$
+    \UNTIL $\mid\mid \Theta^{t+1} -\Theta^t \mid\mid \leq \epsilon$
+    \RETURN $\Theta$;
+    \end{algorithmic}
+\end{algorithm}
+
+\textbf{Hessian Matrix of the Loss Function $\mathcal{L}_D(\Theta)$}
+
+
+\textbf{Newton}
+$\Theta^{t+1} := \Theta^t + \text{H}^{-1} g$
+......todo
+
+\textbf{2.MAP}
+
+\begin{gather*}
+    P(\Theta) \sim \mathcal{N}(0, \alpha^{-1}\text{I}) \\
+    P(D|\Theta) = \prod_{i=1}^n\sigma_i^{y_i}(1-\sigma_i)^{1-y_i} \\
+    P(\Theta | D) \propto \mathcal{N}(0, \alpha^{-1}\text{I}) \prod_{i=1}^n\sigma_i^{y_i}(1-\sigma_i)^{1-y_i} \\
+\end{gather*}
+根据MAP，有
+\begin{equation*}
+    \begin{aligned}
+        \Theta^* &= \underset {\Theta} {\arg \max} \ln{P(\Theta|D)} \\
+        &= \underset{\Theta}{\arg \max} \ln P(D|\Theta) + \ln P(\Theta) \\
+        &= \underset{\Theta}{\arg \max} {\sum_{i=1}^n y_i \ln(\sigma_i) + (1-y_i)\ln{(1-\sigma_i)} -\frac{1}{2}(\Theta^{-1}\Sigma^{-1}\Theta)} 
+    \end{aligned}        
+\end{equation*}
+则
+\begin{equation*}
+    \begin{aligned}
+        \nabla_\Theta \mathcal{L}_D(\Theta) &=\frac{\partial \mathcal{L}_D ( \Theta) }{\partial \Theta} \\
+        &= \sum_{i=1}^n(y_i-\sigma_i)x_i - \Theta \Sigma^{-1} 
+    \end{aligned}
+\end{equation*}
+这里 定$\alpha^{-1}\mathrm{I} = \Sigma$,不影响结果。
+
+类似算法\text{A1},写个\text{A2}
+
+\
+\begin{algorithm}[htb]
+    \caption{A2: (MAP) Gradient Ascent for Logistic Regression}
+    \label{alg:A2}
+    \begin{algorithmic}[1]
+    \REQUIRE
+    X, Y; \\
+    \ENSURE 
+    $\Theta$; \\
+    \STATE init: $\Theta \sim \mathcal{N}(0, \alpha^{-1}\mathrm{I}), \epsilon$
+    \REPEAT 
+    \STATE $g=\mathbf{X}^T(\mathbf{Y}-\sigma) - \Theta^t\Sigma^{-1}$
+    \STATE $\Theta^{t+1} := \Theta^t + \eta g$
+    \UNTIL $\mid\mid \Theta^{t+1} -\Theta^t \mid\mid \leq \epsilon$
+    \RETURN $\Theta$;
+    \end{algorithmic}
+\end{algorithm}
+
+\textbf{3.Bayesian Estimation}
+
+类似算法\text{A1},写个\text{A3}
+
+\begin{algorithm}[htb]
+    \caption{A3: Bayesian Estimation}
+    \label{alg:A3}
+    \begin{algorithmic}[1]
+    \REQUIRE
+    X, Y; \\
+    \ENSURE 
+    $\Theta$; \\
+    \STATE init: $todo$
+    \REPEAT 
+    \STATE $todo$
+    \STATE $todo$
+    \UNTIL $todo$
+    \RETURN $\Theta$;
+    \end{algorithmic}
+\end{algorithm}
+
+
+\subsection{Perceptron(感知机)}
+
+写个历史表
+\begin{itemize}
+    \item 1943 M-P ----神经元模型
+    \item 1957 Rosenblatt ----Perceptron;
+    \item 1982 BP算法(Computational Graph计算图)
+    \item 2006 Hinton ----预训练pretain、DNN
+    \item 2012 AlexNet....图像不太懂...
+\end{itemize}
+
+\textbf{Model}
+
+计算方法：$y=sgn(\mathbf{W}^Tx+b)$
+
+其中；
+\begin{equation*}
+    \left\{ \begin{aligned}
+        y=+1, &\mathbf{W}^Tx+b > 0 , \\ 
+        y=-1, &\mathbf{W}^Tx+b<0 
+    \end{aligned}
+    \right.
+\end{equation*}
+
+\textbf{Loss计算}
+
+\begin{equation*}
+    \mathcal{L}_D(W) = \sum_{x_i, y_i \in M} \frac{|y_i (W^Tx_i+b)|}{||W||}
+\end{equation*}
+其中 $M = \{(x_i, y_i) | y_i(W^Tx+b)<0\}$，可令$||W||=1$，上式可写成,
+\begin{equation*}
+    \mathcal{L}_D(W) = \sum_{i=1}^n\max\{0, -y_i(W^Tx_i+b)\} 
+\end{equation*}
+* 当$\max$中的第二项变为$1-y_i(W^Tx_i+b)$时，损失函数变成SVM的损失函数。
+
+这里求一下偏导数,对于单个样本$(x_i, y_i)$
+\begin{equation*}
+    \frac{\partial (-y_i(W^Tx_i + b))}{\partial W} = -y_i x_i
+\end{equation*}
+也可以写成一个算法形式
+
+\begin{algorithm}[htb]
+    \caption{A4: Perceptron GD}
+    \label{alg:A4}
+    \begin{algorithmic}[1]
+    \REQUIRE
+    $X, Y$; \\
+    \ENSURE 
+    $\Theta=\{W, b\}$; \\
+    \STATE init: $W, b$
+    \REPEAT 
+    \IF{$y_i(W^T x_i + b) < 0 $}
+        \STATE {$W^{t+1} \leftarrow W^t - \eta \nabla_W {\mathcal{L}_D(W)}$}
+        \STATE 等价于 $W^{t+1} \leftarrow W^t + \eta y_i x_i$
+    \ENDIF
+    \UNTIL 训练集中没有误分类点
+    \RETURN $\Theta$;
+    \end{algorithmic}
+\end{algorithm}
+
+
+\subsection{Generative Classification Model}
+\subsubsection*{$y$ 是离散的}
+
+\textbf{x是连续的} 
+
+Given $\{(x_i, y_i)\}_{i=1}^n = D = (X, Y), x\in \mathbb{R}^d$。
+假设$y_i={0, 1}$，即$y_i$服从Bernoulli分布，$x_i$服从高斯分布$x_i|y_i \sim \mathcal{N}(\mu_k, \Sigma_k)$，model描述如下
+\begin{equation*}
+    \begin{aligned}
+        P(x_i, y_i; \Theta) &= P(y_i; \Theta) P(x_i|y_i;\Theta) \\
+        &= \text{Bernoulli}(y_i|p)  \prod_{y=0}^1\mathcal{N}(x_i | \mu_k, \Sigma_k)^{\mathbf{1}\{k=y\}}
+    \end{aligned}
+\end{equation*}
+关于$P(x_i|y_i;\Theta)$部分细述如下,
+\begin{gather*}
+    P(x|y=1; \Theta) = \mathcal{N}(x|\mu_1, \Sigma_1) \\
+    P(x|y=0; \Theta) = \mathcal{N}(x|\mu_0, \Sigma_0) \\
+\end{gather*}
+从而有
+\begin{equation*}
+    P(x|y;\Theta) = \mathcal{N}(x|\mu_1, \Sigma_1)^{\mathbf{1}\{y=1\}} \mathcal{N}(x|\mu_0, \Sigma_0)^{\mathbf{1}\{y=0\}}
+\end{equation*}
+记$\Theta=(p, \mu_0,\Sigma_0, \mu_1, \Sigma_1)$，则有
+\begin{equation*}
+    \begin{aligned}
+        P(D;\Theta) &= \prod_{i=1}^n P(x_i, y_i; \Theta) \\
+        &= \prod_{i=1}^n (p^{y_i}(1-p)^{1-y_i}) \mathcal{N}(x|\mu_1, \Sigma_1)^{\mathbf{1}\{y=1\}} \mathcal{N}(x|\mu_0, \Sigma_0)^{\mathbf{1}\{y=0\}}
+    \end{aligned}
+\end{equation*}
+取对数，有
+\begin{equation*}
+    \begin{aligned}
+        \ln P(D;\Theta) &= \sum_{i=1}^n y_i\ln p+ (1-y_i) \ln (1-p) + \sum_{i=1}^n {\mathbf{1}\{y=1\}} \ln{\mathcal{N}(x_i|\mu_1, \Sigma_1)}+\sum_{i=1}^n{\mathbf{1}\{y=0\}} \ln{\mathcal{N}(x_i|\mu_0, \Sigma_0)}
+    \end{aligned}
+\end{equation*}
+
+Learning time !!!!！
+\textbf{MLE}
+ 
+根据$\hat \Theta_{MLE}=\underset{\Theta}{\arg \max}\ln{P(D;\Theta)}$， 假设$\Sigma_0, \Sigma_1$已知，
+设$M_1=\{(x_i, y_i)| y_i=1\}, M_0=\{(x_i, y_i)| y_i=0\}$，
+求$p, \mu_0, \mu_1$。
+\begin{gather*}
+    \mathcal{L}_D(\Theta) = \ln{P(D;\Theta)} \\
+    \ln{\mathcal{N}(x|\mu,\Sigma)} = -\frac{d}{2}\ln{(2\pi)}-\frac{1}{2}\ln{|\Sigma|}-\frac{1}{2}(x-\mu)^T\Sigma^{-1}(x-\mu) \\
+    \frac{\partial \mathcal{L}_D(\Theta)}{\partial p} = \sum_{i=1}w^n(\frac{y_i}{p}-\frac{1-y_i}{1-p}) =0 \\
+    \frac{\partial \mathcal{L}_D(\Theta)}{\partial \mu_0} =  \sum_{(x_i,y_i)\in M_0} {\Sigma^{-1}(x_i-\mu_0)} =0 \\
+    \frac{\partial \mathcal{L}_D(\Theta)}{\partial \mu_1} =  \sum_{(x_i,y_i)\in M_1} {\Sigma^{-1}(x_i-\mu_1)} =0 \\
+\end{gather*}
+
+解得
+\begin{gather*}
+    p = \frac{\sum_{i=1}^n y_i}{n} \\
+    \mu_0 = \frac{\sum_{(x_i, y_i)\in M_0}x_i}{|M_0|} \\
+    \mu_1 = \frac{\sum_{(x_i, y_i)\in M_1}x_i}{|M_1|} 
+\end{gather*}
+
+Infering time !!!
+
+Given $x, y=?$， $p, \mu_0, \mu_1, \Sigma_0, \Sigma_1$ are known.
+
+\begin{gather*}
+    \begin{aligned}
+        P(y=1|x) & \propto P(y=1)P(x|y=1) \\    
+        &=p \mathcal{N}(x|\mu_1, \Sigma_1) \\
+    \end{aligned}
+    \\
+    \begin{aligned}
+        P(y=0|x) & \propto P(y=0)P(x|y=0) \\    
+        &=(1-p) \mathcal{N}(x|\mu_0, \Sigma_0) 
+    \end{aligned}
+\end{gather*}
+若$ P(y=1|x) >  P(y=0|x)$ ，则$y=1$。
+
+\subsection{\textbf{作业} }
+\begin{gather*}
+    \begin{aligned}
+        g(x) &=\ln{\frac{P(y=1|x)}{P(y=0|x)}} \\     
+        &=\ln{\frac{p \mathcal{N}(x|\mu_1, \Sigma_1)}{(1-p) \mathcal{N}(x|\mu_0, \Sigma_0) }}
+    \end{aligned}
+\end{gather*}
+
+设$ \Sigma_1=\Sigma_0 $, 则$g(x)$是线性平面，可写作$g(x) = w^Tx+b$,即 Gaussian Discriminative Analysis(GDA),
+求$w, b$
+\begin{equation*}
+    \begin{aligned}
+        g(x) &= \ln{\frac{p}{1-p}} + (\frac{1}{2}((x-\mu_0)^T\Sigma^{-1}(x-\mu_0)-(x-\mu_1)^T\Sigma^{-1}(x-\mu_1))) \\
+        & = \ln{\frac{p}{1-p}} + \frac{1}{2}((x^T-{\mu_0}^T)\Sigma^{-1}(x-\mu_0) - (x^T-{\mu_1}^T)\Sigma^{-1}(x-\mu_1))))\\
+        &= \ln{\frac{p}{1-p}} + \frac{1}{2}(x^T \Sigma^{-1}x - x^T\Sigma^{-1}\mu_0 - {\mu_0}^T\Sigma^{-1}x + {\mu_0}^T\Sigma^{-1}\mu_0 + x^T \Sigma^{-1}x + x^T\Sigma^{-1}\mu_1 + {\mu_1}^T\Sigma^{-1}x - {\mu_1}^T\Sigma^{-1}\mu_1) \\
+        &= \ln{\frac{p}{1-p}} + \frac{1}{2}(2({\mu_1}^T \Sigma^{-1}x - {\mu_0}^T \Sigma^{-1}x) + {\mu_0}^T\Sigma^{-1}\mu_0 - {\mu_1}^T\Sigma^{-1}\mu_1) \\
+        &= ({{\mu_1}-{\mu_0}})^T\Sigma^{-1}x + \frac{1}{2}{\mu_0}^T\Sigma^{-1}\mu_0 - \frac{1}{2}{\mu_1}^T\Sigma^{-1}\mu_1 + \ln p - \ln{(1-p)} 
+    \end{aligned}
+\end{equation*}
+即 (结合：$w$记得算一下转置，$\Sigma$是对称矩阵等内容)
+\begin{gather*}
+    w = \Sigma^{-1}({{\mu_1}-{\mu_0}})\\
+    b = \frac{1}{2}{\mu_0}^T\Sigma^{-1}\mu_0 - \frac{1}{2}{\mu_1}^T\Sigma^{-1}\mu_1 + \ln p - \ln{(1-p)}  
+\end{gather*}
+
+\paragraph*{x是离散的}
+
+
+
+
+\end{document}
