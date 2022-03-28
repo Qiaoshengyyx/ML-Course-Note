@@ -15,6 +15,6 @@
 \contentsline {section}{\numberline {5}Lecture 5}{10}{section.5}%
 \contentsline {subsection}{\numberline {5.1}Review: MLE / MAP / Bayesian}{10}{subsection.5.1}%
 \contentsline {subsection}{\numberline {5.2}Logistic Regression(逻辑斯蒂回归)}{11}{subsection.5.2}%
-\contentsline {subsection}{\numberline {5.3}Perceptron(感知机)}{13}{subsection.5.3}%
-\contentsline {subsection}{\numberline {5.4}Generative Classification Model}{14}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.3}Perceptron(感知机)}{14}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Generative Classification Model}{15}{subsection.5.4}%
 \contentsline {subsection}{\numberline {5.5}\textbf {作业} }{16}{subsection.5.5}%

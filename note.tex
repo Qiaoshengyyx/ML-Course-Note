@@ -525,22 +525,39 @@ $\Theta^{t+1} := \Theta^t + \text{H}^{-1} g$
 
 \textbf{3.Bayesian Estimation}
 
-类似算法\text{A1},写个\text{A3}
+贝叶斯估计：
+$\mathbb{E}[\Theta | D]$
+
+$P(y=1|x, D) = $
+类似算法\text{A1},写个\text{A3}用于贝叶斯推理
+
+Inference
+后验预测分布为
+\begin{equation*}
+    p(y=1|x_{new}, D) = \int p(y=1 | x_{new}, \Theta)p(\Theta|x,D)d\Theta
+\end{equation*}
+但是积分难以处理，采用近似处理，同时还有假设$x_{new}$与$\Theta$无关，有
+\begin{equation*}
+    \begin{aligned}
+        p(y=1|x_{new}, D) &= \int p(y=1 | x_{new}, \Theta, D)p(\Theta|D)d\Theta \\
+        &= \int \sigma(\Theta^Tx_{new})p(\Theta |D)d\Theta \\
+        &\approx \frac{1}{\mathcal{L}}\sum_{i=1}^{\mathcal{L}} \sigma((\Theta^{(i)})^Tx_{new} )
+    \end{aligned}
+\end{equation*}
+其中，${\Theta}^{(i)} \propto p(\Theta | D) (i=1,..., \mathcal{L})$
 
 \begin{algorithm}[htb]
-    \caption{A3: Bayesian Estimation}
+    \caption{A3: Inference after Bayesian Estimation}
     \label{alg:A3}
     \begin{algorithmic}[1]
     \REQUIRE
-    X, Y; \\
+    $x_{new}$, D; \\
     \ENSURE 
-    $\Theta$; \\
-    \STATE init: $todo$
-    \REPEAT 
-    \STATE $todo$
-    \STATE $todo$
-    \UNTIL $todo$
-    \RETURN $\Theta$;
+    y; \\
+    \STATE init: ${\Theta}^{(i)} \propto p(\Theta | D) (i=1,..., \mathcal{L})$
+    \STATE $P(y=1|x_{new},D)=\frac{1}{\mathcal{L}} \sum_{i=1}^{\mathcal{L}} \sigma((\Theta^{(i)})^T x_{new})$
+    \STATE $P(y=0|x_{new},D)=\frac{1}{\mathcal{L}}\sum_{i=1}^{\mathcal{L}} (1-\sigma((\Theta^{(i)})^Tx_{new}) )$
+    \RETURN 1 if $P(y=1|x_{new},D) > P(y=0|x_{new},D)$ else 0;
     \end{algorithmic}
 \end{algorithm}
 
