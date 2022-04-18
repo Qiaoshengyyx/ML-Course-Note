@@ -724,7 +724,533 @@ Given $x, y=?$， $p, \mu_0, \mu_1, \Sigma_0, \Sigma_1$ are known.
 
 \paragraph*{x是离散的}
 
+\newpage
+\section{Lecture 6}
+2022.3.28
 
+
+\textbf{Outline}
+\begin{enumerate}
+    \item Generative Classification Model : $p(x,y)$， y is discrete
+        \subitem x is continuous (高斯判别分析 GDA)
+        \subitem x is discrete (朴素贝叶斯 NB)
+    \item 贝叶斯学习
+\end{enumerate}
+
+\subsection{朴素贝叶斯 NB}
+\dotfill
+
+Problem: $D=\{( \boldsymbol{x}_{i},y_i)\}_{i=1}^{n}$，其中$x_i \in R^d$，$y_i\in \{0,1\}$,  $<X,Y> \sim P$
+
+\dotfill
+
+\subsubsection{原理与模型}
+
+假设：各个维度独立；每个维度的取值为0或1
+$$
+P(X_1,...,X_d|Y)=\prod^d_{j=1}P(X_j|Y)
+$$
+
+\dotfill
+
+ 条件独立：$P(X|Y,Z)=P(X|Z)=X\perp Y|Z$
+ 
+ $P(X|Y)=P(X_1,X_2|Y)=P(X_1|X_2,Y)P(X_2|Y)=P(X_1|Y)P(X_2|Y)$
+ 
+ \dotfill
+
+模型：
+$$
+\begin{aligned}
+y^*（分类结果）&=\underset{y_k}{\arg \max } \frac{P(y_k)P(X|y_k)}{P(X)}\\
+&=\underset{y_k}{\arg \max }~{P(Y=y_k)\prod_{j=1}^d P(X_j=x_j|Y=y_k)}\\
+\end{aligned}
+$$
+
+
+
+\subsubsection{算法}
+\begin{enumerate}
+    \item MLE
+    
+    其实就是计算频率
+    \item 零频率问题
+
+解决方案：拉普拉斯平滑
+$$
+P(w \mid c)=\frac{\operatorname{num}(w, c)+\varepsilon}{\operatorname{num}(c)+k \varepsilon}
+$$
+PS:属性缺失不用管
+
+\end{enumerate}
+
+
+\subsubsection{小结：产生式p(y|x) vs. 判别式p(x,y)}
+\begin{enumerate}
+    \item 产生式模型有其对应的判别式模型，这样的组合叫做“产生式-判别式”对；(e.g. 根据p(x,y)得到GDA的分界面);
+    \item 判别式模型不一定有其对应的产生式模型;
+    \item 训练样本多的情况下，采用判别式;
+    \item 训练样本少的情况下，选择产生式。
+\end{enumerate}
+
+\subsection{贝叶斯学习}
+\begin{enumerate}
+    \item MLE/MAP/贝叶斯估计
+    \item 贝叶斯估计：将先验信息集成到模型推理中 $p(x,X,\theta)$
+\end{enumerate}
+
+\subsection*{\textbf{作业} }
+朴素贝叶斯的贝叶斯估计
+
+输入: 训练集 $T=\left\{\left(x_{1}, y_{1}\right),\left(x_{2}, y_{2}\right), \ldots\left(x_{N}, y_{N}\right)\right\}$, 其中 $x_{i}=\left(x_{i}^{(1)}, x_{i}^{(2)}, \ldots, x_{i}^{(n)}\right)^{T}$ ，第 $\mathrm{i}$ 个样本的第 $\mathrm{j}$ 个特征$x_{i}^{(j)}$可能的取值集合为 $\left\{a_{j 1}, a_{j 2}, \ldots, a_{j S_{j}}\right\}$ ，即某一特征的取值为有限集合。
+$y_{i} \in\left\{c_{1}, c_{2}, \ldots, c_{K}\right\}$ ， 即分类结果为有限集合 (共 $\mathrm{K}$ 个)。
+
+先验概率的贝叶斯估计为：
+$$
+P\left(Y=c_{k}\right)=\frac{\sum_{i=1}^{N} I\left(y_{i}=c_{k}\right)+\lambda}{N+K\lambda}, k=1,2, \ldots, K
+$$
+
+条件概率的贝叶斯估计为：
+$$
+P\left(X^{(j)}=a_{j l} \mid Y=c_{k}\right)=\frac{\sum_{i=1}^{N} I\left(x_{i}^{(j)}=a_{j l}, y_{i}=c_{k}\right)+\lambda}{\sum_{i=1}^{N} I\left(y_{i}=c_{k}\right)+S_j\lambda}
+$$
+
+朴素贝叶斯的贝叶斯估计为：
+$$
+y=\underset{c_k}{\arg \max}P(Y=c_{k})\prod_{j=1}^nP(X^{(j)}=x_{j }\mid  Y=c_{k})
+$$
+
+\newpage
+\section{Lecture 7}
+2022.4.4
+
+\textbf{Outline}
+\begin{enumerate}
+    \item 狄利克雷分布
+    \item MLE/MAP/Bayesian Learning：多分类
+    \item Bernoulli Mixture Model
+    \item EM算法
+        \subitem EM-principle
+        \subitem EM-convergence
+        \subitem EM for GMM
+        \subitem EM for Topic Model
+\end{enumerate}
+
+\subsection{狄利克雷分布}
+
+\subsubsection{二项分布}
+二项分布用以描述 $n$ 次独立的伯努利实验中有 $m$ 次成功的概率：
+$$
+\begin{aligned}
+P(X=m)=\binom{n}{m} p^{m}(1-p)^{n-m}
+\end{aligned}
+$$
+当试验的次数n为1时，二项分布变成伯努利分布。
+
+\subsubsection{多项分布}
+多项分布是一种多元离散随机变量的概率分布，是二项分布的扩展。
+假设重复进行n次独立随机试验，每次试验可能出现的结果有k种，第$i$
+种结果出现的概率为$p_i$，第$i$种结果出现的次数为$n_i$。如果用随机变量
+$X=(X_1,X_2,...,X_k)$表示试验所有可能结果的次数，其中$X_i$表示第$i$种结果出现的次数，
+那么随机变量X服从多项分布。
+
+$$
+\begin{aligned}
+    P\left(X_{1}=n_{1}, \cdots, X_{k}=n_{k}\right)&= \frac{n !}{n_{1} ! \cdots n_{k} !} p_{1}^{n_{1}} \cdots p_{k}^{n_{k}} ~~~~ , \sum_{i=1}^{k} n_{i}=n \\ 
+&=n ! \prod_{i=1}^{k} \frac{p_{i}^{n_{i}}}{n_{i} !} ~~~~ , \sum_{i=1}^{k} n_{i}=n \\ 
+\end{aligned}
+$$
+当试验的次数n为1时，多项分布变成类别分布。类别分布表示试验可能出现的k种结果的概率。
+
+\subsubsection{贝塔分布}
+贝塔分布是关于连续变量 $x \in[0,1]$ 的概率分布，它由两个参数 $a>0$ 和 $b>0$ 确定:
+$$
+\begin{aligned}
+\operatorname{Beta}(x \mid a, b)=\frac{\Gamma(a+b)}{\Gamma(a) \Gamma(b)} x^{a-1}(1-x)^{b-1}=\frac{1}{B(a, b)} x^{a-1}(1-x)^{b-1}
+\end{aligned}
+$$
+
+其中, $\Gamma(s)$ 为Gamma函数:
+$$
+\begin{aligned}
+\Gamma(s)=\int_{0}^{+\infty} t^{s-1} e^{-t} d t
+\end{aligned}
+$$
+
+$B(a, b)$ 为Beta函数，用来做归一化:
+$$
+\begin{aligned}
+B(a, b)=\frac{\Gamma(a) \Gamma(b)}{\Gamma(a+b)}
+\end{aligned}
+$$
+
+
+\subsubsection{狄利克雷分布}
+狄利克雷分布是一种多元连续随机变量的概率分布，是贝塔分布的扩展。在贝叶斯学习中，
+狄利克雷分布常作为多项分布的先验分布使用。
+狄利克雷分布是关于一组 $d$ 个连续变量 $x_{i} \in[0,1]$ 的概率分布， $\sum_{i} x_{i}=1_{0}$ 。令 $\mu=$ $\left(\mu_{1}, \mu_{2}, \cdots, \mu_{d}\right)$ ，参数 $\alpha=\left(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{d}\right)$ ，其中 $\alpha_{i}>0$ 且 $\hat{\alpha}=\sum_{i} \alpha_{i \text { 。 }}$
+$$
+\begin{aligned}
+\operatorname{Dir}(x \mid \alpha)=\frac{\Gamma(\sum^{d}_{i=1}\alpha_i)}{\prod_{i=1}^{d}\Gamma(\alpha_i)}  \prod_{i=1}^{d}x_{i}^{\alpha_{i}-1}
+\end{aligned}
+$$
+
+当 $d=2$ 时，狄利克雷分布退化为贝塔分布。
+
+
+\subsubsection{共轭先验}
+贝叶斯学习中常使用共轭分布。如果后验分布与先验分布属于同类，则先验分布与后验分布称为
+\textbf{共轭分布}，先验分布称为共轭先验。
+
+如果多项分布的先验分布是狄利克雷分布，则其后验分布也为狄利克雷分布，两者构成共轭分布。
+作为先验分布的狄利克雷分布的参数又称为超参数。使用共轭分布的好处是便于从先验分布
+计算后验分布。
+
+\subsection{MLE/MAP/Bayesian Learning：多分类}
+
+
+\begin{enumerate}
+    \item 二分类 $X\in\{0,1\}$, $P(X=0)=\prod^{1}_{k=0}\theta_k^{I(x=k)}$
+    \item 多分类 $X\in\{1,...,K\}$, $P(X=x)=\prod^{K}_{k=1}\theta_k^{I(x=k)}$ 查表法
+\end{enumerate}
+
+
+
+\textbf{Learning：给定$D=\{x_i\}_{i=1}^{n}$求$\theta$}
+\begin{itemize}
+    \item 有目标goal：损失函数
+        \subitem MLE  
+        
+        $$
+        \begin{aligned}
+        P(D;\theta)&=\prod^{n}_{i=1}\prod^{6}_{k=1}\theta_k^{I(x=k)}=\prod^{6}_{k=1}\theta_k^{\sum^{n}_{i=1}I(x=k)}  \\
+        lnP(D;\theta)&=\prod^{6}_{k=1}n_k\ln\theta_k
+        \end{aligned}
+        $$
+
+        \subsubitem 求该数据集出现的概率最大时，$\theta$的取值
+			
+        $$
+        \begin{aligned}
+            \frac{\partial \ln P(D;\theta)}{\partial \theta_k}
+        \end{aligned}
+        $$ 
+        \subitem MAP：$\theta \sim P(\theta\mid\alpha)$
+        $$
+        \begin{aligned}
+        \theta\sim P(\theta|D)&=P(\theta)P(D|\theta)\\
+        \theta^{\star}&=\underset{\theta}{\arg \max}P(\theta|D)
+        \end{aligned}
+        $$
+
+        \subitem 贝叶斯学习
+
+           \subsubitem MAP得到$P(\theta|D)$
+			
+            $$
+            \begin{aligned}
+                \forall x ~P(x|D)=\int P(x,\theta|D)d\theta=\int P(\theta|D)P(x|\theta)d\theta=\int \theta_kP(\theta|D)
+            \end{aligned}
+            $$
+            
+    \item 有方法Algorithm：使损失函数达到最小的算法
+\end{itemize}
+
+
+\textbf{Inference: 已知$\theta$，根据x，求y}
+
+\subsection{Bernoulli Mixture Model}
+有限混合模型（Finite Mixture Model）是一个可以用来表示在总体分布中含有
+$K$个子分布的概率模型。子分部可以是各种经典的分布模型，包括高斯模型，
+伯努利模型，多项式模型等。
+
+首先在$D$维空间中定义由$K$个子分布组成的混合模型通用式:
+$$
+\begin{aligned}
+P(\boldsymbol{x} \mid \Theta, \boldsymbol{\pi})=\sum_{k=1}^{K} \pi_{k} P\left(\boldsymbol{x} \mid \boldsymbol{\theta}_{k}\right)
+\end{aligned}
+$$
+
+其中 $\pi_{k}$ 为第 $k$ 个子分布的混合系数，也称权重，且满足
+$\sum_{k=1}^{K} \pi_{k}=1$ ； $\Theta=\left\{\boldsymbol{\theta}_{1}, \boldsymbol{\theta}_{2}, \ldots, \boldsymbol{\theta}_{K}\right\} \circ$
+
+$\Omega=\left\{\boldsymbol{x}_{1}, \boldsymbol{x}_{2}, \ldots, \boldsymbol{x}_{N}\right\}$ 
+为一个包含 $N$ 个样本的数据集，且所有样本满足独立同分布。
+
+对于混合模型，通常采用极大似然法（Maximum likelihood) 来估算参数 $\Theta$ ，因此我们建立如下
+混合模型的似然函数，并希望将其最大化，
+$$
+\begin{aligned}
+L(\Omega \mid \Theta, \boldsymbol{\pi})=\prod_{n=1}^{N} \sum_{k=1}^{K} \pi_{k} P\left(\boldsymbol{x}_{n} \mid \boldsymbol{\theta}_{k}\right)
+\end{aligned}
+$$
+
+为便于计算，将上式转化为对数似然函数：
+
+$$
+\begin{aligned}
+\log L(\Omega \mid \Theta, \boldsymbol{\pi})=\sum_{n=1}^{N} \log \sum_{k=1}^{K} \pi_{k} P\left(\boldsymbol{x}_{n} \mid \boldsymbol{\theta}_{k}\right)
+\end{aligned}
+$$
+
+一点预备知识：利用贝叶斯定理推导出后验概率 (posterior probability) 
+$\gamma\left(z_{n k}\right)$ :
+$$
+\begin{aligned}
+\gamma\left(z_{n k}\right)=P\left(z_{k}=1 \mid \boldsymbol{x}_{n}\right) &=\frac{P\left(\boldsymbol{x}_{n} \mid z_{k}=1\right) P\left(z_{k}=1\right)}{\sum_{k=1}^{K} P\left(\boldsymbol{x}_{n} \mid z_{k}=1\right) P\left(z_{k}=1\right)} \\
+&=\frac{\pi_{k} P\left(\boldsymbol{x}_{n} \mid \boldsymbol{\theta}_{k}\right)}{\sum_{k=1}^{K} \pi_{k} P\left(\boldsymbol{x}_{n} \mid \boldsymbol{\theta}_{k}\right)}
+\end{aligned}
+$$
+$\gamma\left(z_{n k}\right)$ 表示在已知观测样本 $\boldsymbol{x}_{n}$ 的条件下，
+该样本来自于第 $k$ 个子分布 $\left(z_{k}=1\right)$ 的概率。
+
+\subsubsection{混合模型的应用}
+
+\textbf{文档分类} 
+
+
+$$
+\begin{aligned}
+\boldsymbol{X}_{n*d}=\left[\begin{array}{c}
+    \boldsymbol{x}_{1}^{\mathrm{T}} \\
+    \boldsymbol{x}_{2}^{\mathrm{T}} \\
+    \vdots \\
+    \boldsymbol{x}_{n}^{\mathrm{T}}
+    \end{array}\right]
+\end{aligned}
+$$
+
+设每一行，即每个样本代表一个文档；每一列代表一个单词出现的次数
+
+\begin{equation*}
+    \begin{aligned}
+        P(y=k)&=\prod^{K}_{k=1}\theta_k^{I(y=k)}\\
+        P(x_j|y_i)&=\prod^{K}_{i=1}\prod^{V}_{j=1}\Psi_{vk}^{I(y_i=k ~and~x_j=v )}\\
+        P(D;\psi)&=\prod P(x_i,y_i)\\
+        &= \prod P(y_i)P(x_i|y_i)\\
+        &= \prod_{i=1}^n(\prod^{K}_{k=1}\theta_k^{I(y=k)})(\prod^{K}_{i=1}\prod^{V}_{j=1}\Psi_{vk}^{I(y_i=k ~and~x_j=v )})\\
+    \end{aligned}    
+\end{equation*}
+
+
+\begin{gather*}
+        \begin{aligned}
+        logP(D|\psi)&= \sum_{i=1}^n(\sum^{K}_{k=1}{I(y=k)}log\theta_k^{})+\sum_{i=1}^n(\sum^{K}_{i=1}\sum^{V}_{j=1}{I(y_i=k ~and~x_j=v )}log\Psi_{vk})\\
+        &=\sum^{K}_{k=1}{c_k}log\theta_k^{}+\sum^{K}_{i=1}\sum^{V}_{j=1}{c_{k,v}}log\Psi_{vk}\\
+        \end{aligned}
+\end{gather*}
+
+
+求导即可得$\theta_k,\psi_{vk}$
+
+
+\dotfill
+
+\textbf{抛硬币}
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{c|c c c c c c c c c c }
+         y & A & A & B & B & B & A & A & A & B & B  \\
+         \hline
+         x & 1 & 0 & 0 & 1 & 1 & 0 & 0 & 1 & 0 & 1 
+    \end{tabular}
+    \label{tab:coin}
+\end{table}
+% $$
+% \begin{aligned}
+% y \quad A \quad A \quad B \quad B \quad B\quad A \quad A \quad A \quad B \quad B \\
+% \hline
+% x \quad 1 \quad 0 \quad 0 \quad 1 \quad 1 \quad 0 \quad 0 \quad 1 \quad 0 \quad 1
+% \end{aligned}
+% $$
+
+
+\begin{equation*}
+    \begin{aligned}
+        P(A|\text{黑})=\frac{P(A)P(\text{黑}|A)}{P(\text{黑})}=\frac{P(A)P(\text{黑}|A)}{P(A)P(\text{黑}|A)+P(B)P(\text{黑}|B)}
+    \end{aligned}            
+\end{equation*}
+
+
+
+\subsubsection{二维伯努利分布的混合模型}
+二维伯努利分布是关于二维布尔向量 $\boldsymbol{x}=\left[x_{1}, x_{2}\right]$ 的概率分布，
+其中 $x_{1}, x_{2} \in\{0,1\}$ ，且 
+满足 $x_{1}+x_{2}=1$ ，即 $x_{1}, x_{2}$ 中只有一个为 1 ；
+设参数向量 $\boldsymbol{\theta}=\left[\theta_{1}, \theta_{2}\right]$ ，
+$\theta_{1}, \theta_{2} \in[0,1]$ ，分别表示 $x_{1}=1$ 以及 $x_{2}=1$ 的概率，
+且满足 $\theta_{1}+\theta_{2}=1$ 。其概率分布函数为:
+$$
+\begin{aligned}
+P(\boldsymbol{x} \mid \boldsymbol{\theta}) &=\theta_{1}^{x_{1}} \theta_{2}^{x_{2}} \\
+&=\theta_{1}^{x_{1}}\left(1-\theta_{1}\right)^{1-x_{1}}
+\end{aligned}
+$$
+由此可见，二维伯努利就是我们所熟知的伯努利分布，这里称其为二维是为了与后面介绍的多维伯努利相一致。
+二维伯努利最简单的应用就是抛硬币问题，一个硬币共有两个面，每次实验只会出现一个面朝上。
+
+二维伯努利混合模型的对数似然函数如下所示：
+$$
+\begin{aligned}
+\log L(\Omega \mid \Theta, \pi)=\sum_{n=1}^{N} \log \sum_{k=1}^{K} \pi_{k} \theta_{k, 1}^{x_{n, 1}}\left(1-\theta_{k, 1}\right)^{1-x_{n, 1} \quad(8)}
+\end{aligned}
+$$
+其中， $\theta_{k, 1}$ 表示第 $k$ 个子分布中参数向量 $\boldsymbol{\theta}_{k}$ 的第 1 维参数， $x_{n, 1}$ 表示第 $n$ 个样本的第 1 维 变量值。
+然后让(8)对参数 $\theta_{k, 1}$ 求导并令其导数为 0 :
+$$
+\begin{aligned}
+\frac{\log L(\Omega \mid \Theta, \boldsymbol{\pi})}{\partial \theta_{k, 1}}
+&=\sum_{n=1}^{N} \frac{\partial}{\partial \theta_{k, 1}} \log \sum_{k=1}^{K} \pi_{k} \theta_{k, 1}^{x_{n, 1}}\left(1-\theta_{k, 1}\right)^{1-x_{n, 1}}\\
+&=\sum_{n=1}^{N} \frac{\pi_{k} \theta_{k, 1}^{x_{n, 1}}\left(1-\theta_{k, 1}\right)^{1-x_{n, 1}}}{\sum_{k=1}^{K} \pi_{k} \theta_{k, 1}^{x_{n, 1}}\left(1-\theta_{k, 1}\right)^{1-x_{n, 1}}} \frac{\frac{\partial}{\partial \theta_{k, 1}} \theta_{k, 1}^{x_{n, 1}}\left(1-\theta_{k, 1}\right)^{1-x_{n, 1}}}{\theta_{k, 1}^{x_{n, 1}}\left(1-\theta_{k, 1}\right)^{1-x_{n, 1}}}\\
+&=\sum_{n=1}^{N} \gamma\left(z_{n k}\right) \frac{\partial}{\partial \theta_{k, 1}} \log \left(\theta_{k, 1}^{x_{n, 1}}\left(1-\theta_{k, 1}\right)^{1-x_{n, 1}}\right)\\
+&=\sum_{n=1}^{N} \gamma\left(z_{n k}\right) \frac{\partial}{\partial \theta_{k, 1}}\left(x_{n, 1} \log \theta_{k, 1}+\left(1-x_{n, 1}\right) \log \left(1-\theta_{k, 1}\right)\right)\\
+&=\sum_{n=1}^{N} \gamma\left(z_{n k}\right)\left(\frac{x_{n, 1}}{\theta_{k, 1}}-\frac{1-x_{n, 1}}{1-\theta_{k, 1}}\right)\\
+&=0
+\end{aligned}
+$$
+
+由此可得
+$$
+\begin{aligned}
+\theta_{k, 1} &=\frac{\sum_{n=1}^{N} \gamma\left(z_{n k}\right) x_{n, 1}}{\sum_{n=1}^{N} \gamma\left(z_{n k}\right)} \\
+\theta_{k, 2} &=1-\theta_{k, 1}
+\end{aligned}
+$$
+
+\subsubsection{混合系数$\pi_k$的求解}
+
+对于混合系数 $\pi_{k}$ 的求解，由于 $\pi_{k}$ 满足约束 $\sum_{k=1}^{K} \pi_{k}=1$ ， 
+因此在对数似然函数通用表达式末尾添加添加惩罚项 $\lambda\left(1-\sum_{k=1}^{K} \pi_{k}\right)$ ，
+因此得到加了惩罚项的对数似然函数 $p \log L(\Omega \mid \Theta, \pi)$
+$$
+\begin{aligned}
+p \log L(\Omega \mid \Theta, \boldsymbol{\pi})=\sum_{n=1}^{N} \log \sum_{k=1}^{K} \pi_{k} P\left(\boldsymbol{x}_{n} \mid \boldsymbol{\theta}_{k}\right)+\lambda\left(1-\sum_{k=1}^{K} \pi_{k}\right)
+\end{aligned}
+$$
+让上式对 $\pi_{k}$ 求导得:
+$$
+\begin{aligned}
+\frac{p \log L(\Omega \mid \Theta, \pi)}{\partial \pi_{k}} 
+&=\sum_{n=1}^{N} \frac{\partial}{\partial \pi_{k}} \log \sum_{k=1}^{K} \pi_{k} P\left(\boldsymbol{x}_{n} \mid \boldsymbol{\theta}_{k}\right)-\lambda \\
+&=\sum_{n=1}^{N} \frac{\gamma\left(z_{n k}\right)}{\pi_{k}}-\lambda=0
+\end{aligned}
+$$
+对上式最后一行两边同乘 $\pi_{k}$ ，并对 $k$ 求和得:
+$$
+\begin{aligned}
+\sum_{k=1}^{K} \sum_{n=1}^{N} \gamma\left(z_{n k}\right)-\lambda \sum_{k=1}^{K} \pi_{k}=0
+\end{aligned}
+$$
+因此可得:
+$$
+\begin{aligned}
+\lambda&=N\\
+\pi_{k}&=\frac{\sum_{n=1}^{N} \gamma\left(z_{n k}\right)}{N}
+\end{aligned}
+$$
+
+\subsection{EM算法}
+EM算法是一种迭代算法，用于含有隐变量（Hidden variable）的
+概率模型参数的最大似然估计。该算法流程如下：
+\begin{enumerate}
+    \item 确定混合数$K$ ，并初始化参数。
+    \item E-step：依据当前参数，计算每个数据$x_n$来自子模型$k$的后验概率$\gamma(z_{n k})$。
+    \item M-step：根据不同分布，计算模型参数$\Theta$以及混合系数$\pi$ 。
+    \item 重复计算 E-step 和 M-step 直至收敛（$||\Theta_{i+1}-\Theta_{i}|| < \epsilon$是一个很小的正数）。
+\end{enumerate}
+
+% \subitem EM-principle
+%         \subitem EM-convergence
+%         \subitem EM for GMM
+%         \subitem EM for Topic Model
+
+% \subsubsection{}
+嘻嘻
+"\--... ....- ----. -----\--... ....- ----. -----\--... --... .---- ..-.\-.... ---.. -.. ..---"
+
+\section{Lecture 8}
+2022.4.11
+\textbf{Outline}
+\begin{itemize}
+    \item Homework
+    \item EM
+    \item EM for xxx
+\end{itemize}
+
+\begin{equation*}
+    \begin{aligned}
+        \log P(x_i; \theta) &= \log \sum_{z_i} P(x_i, z_i; \theta) \\
+                            &= \log \sum_{k=1}^K P(x_i, z_i=k; \theta) \\
+                            &= \log \sum_{k=1}^K Q_i(z_i=k) \frac{P(x_i, z_i=k; \theta)}{Q_i(z_i=k)} \\
+                            &= \log \mathbb{E}_{Z_i ~ Q_i(Z_i)}[\frac{P(x_i, Z_i; \theta)}{Q_i(Z_i)}] \\ 
+                            &\ge \mathbb{E}_{Z_i \sim Q_i(Z_i)}[\log \frac{P(x_i,Z_i;\theta)}{Q_i(Z_i)}] \\
+    \end{aligned}
+\end{equation*}
+
+\textbf{Jensen Inequality}
+\begin{center} 
+    \shadowbox{\parbox{0.5\linewidth}{
+        \begin{equation*}
+            \log \mathbb{E}[X] \ge \mathbb{E}[\log X]
+        \end{equation*}
+    }}
+\end{center}
+
+\subsection{EM算法}
+E-step
+\begin{equation*}
+    Q_i(\theta; \theta^t) = \mathbb{E}_{Z_i \sim \mathbb{P}(Z_i | x_i; \theta^t)}[\log P(x_i, z_i; \theta)] + H(Z_i)
+\end{equation*}
+M-step
+\begin{equation*}
+    \begin{aligned}
+        \theta^{t+1} &= \underset{\theta}{\arg\max}  \sum_{i=1}^n(\sum_{k=1}^K \gamma_{ik} \log P(x_i, z_i=k;\theta)) \\    
+                     &= \underset{\theta}{\arg\max}  \sum_{k=1}^K\sum_{i=1}^n \gamma_{ik} \log (P(z_i=k;\theta)P(x_i|z_i=k;\theta)) \\    
+                     &= \underset{\theta}{\arg\max}  \sum_{k=1}^K (\sum_{i=1}^n\log (P(z_i=k;\theta)+\sum_{i=1}^n\log (P(x_i, z_i=k;\theta) ))
+    \end{aligned}
+\end{equation*}
+
+\subsection{两个例子}
+
+Example 1 (Three coins)
+
+$z_i\in\{0,1\}$ 
+\begin{table*}
+    \begin{tabular}{c | c c}
+        $z_i$ & 0 & 1 \\
+        $mathbb{P}$ & $1-\pi$ & $\pi$ \\
+    \end{tabular}
+\end{table*}
+
+\begin{table*}
+    \begin{tabular}{c | c | c c}
+        $x_i$ & $z_i=0$ & 0 & 1 \\
+        & $mathbb{P}$ & $1-p$ & $p$ \\
+    \end{tabular}
+\end{table*}
+
+\begin{table*}
+    \begin{tabular}{c | c | c c}
+        $x_i$ & $z_i=1$ & 0 & 1 \\
+        & $mathbb{P}$ & $1-q$ & $q$ \\
+    \end{tabular}
+\end{table*}
+
+\begin{equation*}
+    Q(\theta; \theta^t) = \sum_{i=1}^n \gamma_{i0} \log (1-\pi) + \sum_{i=1}^n \gamma_{i0} \log p^{x_i} (1-p)^{1-x_i}
+    + \sum_{i=1}^n \gamma_{i1} \log \pi + \sum_{i=1}^n \gamma_{i1} \log q^{x_i} (1-q)^{1-x_i}
+\end{equation*}
+
+补充$p, q, \pi$计算
+
+\textbf{作业}
+
+Example 2. GMM
 
 
 \end{document}
+
+
+
+
+

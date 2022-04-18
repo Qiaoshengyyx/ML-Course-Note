@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021) (preloaded format=xelatex 2021.7.6)  28 MAR 2022 15:35
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021) (preloaded format=xelatex 2021.7.6)  11 APR 2022 20:47
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -610,47 +610,71 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <7> on input line 3.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 3.
-)
+LaTeX Font Info:    Font shape `TU/SongtiSCLight(0)/m/sl' in size <10.53937> not available
+(Font)              Font shape `TU/SongtiSCLight(0)/m/it' tried instead on input line 38.
+ [2])
 \tf@toc=\write5
 \openout5 = `note.toc'.
 
-LaTeX Font Info:    Font shape `TU/SongtiSCLight(0)/m/sl' in size <10.53937> not available
-(Font)              Font shape `TU/SongtiSCLight(0)/m/it' tried instead on input line 32.
- [2] [3] [4]
+ [3] [4] [5]
 Overfull \hbox (10.79999pt too wide) in paragraph at lines 147--148
  [][] 
  []
 
-[5] [6] [7] [8]
+[6] [7] [8] [9]
 Overfull \hbox (10.79999pt too wide) in paragraph at lines 271--272
  [] 
  []
 
-[9] [10]
+[10] [11]
 Missing character: There is no ～ ("FF5E) in font rm-lmr10!
- [11]
+ [12]
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 459.
- [12] [13] [14]
+ [13] [14] [15]
 Overfull \hbox (9.78943pt too wide) detected at line 660
 [][]
  []
 
-[15]
+[16]
 Overfull \hbox (43.11662pt too wide) detected at line 718
 [][]
  []
 
-[16] (./note.aux)
+[17]
+Missing character: There is no （ ("FF08) in font rm-lmr10!
+Missing character: There is no 分 ("5206) in font rm-lmr10!
+Missing character: There is no 类 ("7C7B) in font rm-lmr10!
+Missing character: There is no 结 ("7ED3) in font rm-lmr10!
+Missing character: There is no 果 ("679C) in font rm-lmr10!
+Missing character: There is no ） ("FF09) in font rm-lmr10!
+ [18] [19] [20] [21] [22] [23]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 1120.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\pi' on input line 1120.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `subscript' on input line 1120.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 1120.
+
+[24] [25] [26] (./note.aux)
 Package rerunfilecheck Info: File `note.out' has not changed.
-(rerunfilecheck)             Checksum: 9C67E44E932B667C47DA4D43E5144586;2770.
+(rerunfilecheck)             Checksum: 93869055AA51A3682C7F020803BAC445;5389.
  ) 
 Here is how much of TeX's memory you used:
- 15827 strings out of 476919
- 333153 string characters out of 5821841
- 674068 words of memory out of 5000000
- 35520 multiletter control sequences out of 15000+600000
- 439094 words of font info for 96 fonts, out of 8000000 for 9000
+ 15926 strings out of 476919
+ 339630 string characters out of 5821841
+ 677964 words of memory out of 5000000
+ 35617 multiletter control sequences out of 15000+600000
+ 439110 words of font info for 98 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 101i,16n,104p,439b,619s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 101i,17n,104p,442b,619s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on note.pdf (16 pages).
+Output written on note.pdf (26 pages).
