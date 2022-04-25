@@ -1065,12 +1065,11 @@ $$
 % $$
 
 
-\begin{equation*}
-    \begin{aligned}
-        P(A|\text{黑})=\frac{P(A)P(\text{黑}|A)}{P(\text{黑})}=\frac{P(A)P(\text{黑}|A)}{P(A)P(\text{黑}|A)+P(B)P(\text{黑}|B)}
-    \end{aligned}            
-\end{equation*}
-
+$$
+\begin{aligned}
+P(A|黑)=\frac{P(A)P(黑|A)}{P(黑)}=\frac{P(A)P(黑|A)}{P(A)P(黑|A)+P(B)P(黑|B)}
+\end{aligned}
+$$
 
 
 \subsubsection{二维伯努利分布的混合模型}
@@ -1168,89 +1167,509 @@ EM算法是一种迭代算法，用于含有隐变量（Hidden variable）的
 嘻嘻
 "\--... ....- ----. -----\--... ....- ----. -----\--... --... .---- ..-.\-.... ---.. -.. ..---"
 
+\newpage
 \section{Lecture 8}
 2022.4.11
+
 \textbf{Outline}
-\begin{itemize}
-    \item Homework
-    \item EM
-    \item EM for xxx
-\end{itemize}
+\begin{enumerate}
+    \item EM-principle
+        \subitem 生成过程
+        \subitem 混合模型似然函数
+    \item EM 算法
+\end{enumerate}
 
-\begin{equation*}
-    \begin{aligned}
-        \log P(x_i; \theta) &= \log \sum_{z_i} P(x_i, z_i; \theta) \\
-                            &= \log \sum_{k=1}^K P(x_i, z_i=k; \theta) \\
-                            &= \log \sum_{k=1}^K Q_i(z_i=k) \frac{P(x_i, z_i=k; \theta)}{Q_i(z_i=k)} \\
-                            &= \log \mathbb{E}_{Z_i ~ Q_i(Z_i)}[\frac{P(x_i, Z_i; \theta)}{Q_i(Z_i)}] \\ 
-                            &\ge \mathbb{E}_{Z_i \sim Q_i(Z_i)}[\log \frac{P(x_i,Z_i;\theta)}{Q_i(Z_i)}] \\
-    \end{aligned}
-\end{equation*}
+\subsection{EM-principle}
+苏老师：再过五年，所有的数学课都需要编程。
 
-\textbf{Jensen Inequality}
-\begin{center} 
-    \shadowbox{\parbox{0.5\linewidth}{
-        \begin{equation*}
-            \log \mathbb{E}[X] \ge \mathbb{E}[\log X]
-        \end{equation*}
-    }}
-\end{center}
+\dotfill
+
+\textbf{Data} D=$\{(x_i)\}_{i=1}^n$
+
+\textbf{Model} 
+
+\dotfill
+
+\subsubsection{生成过程}
+
+假设，我们将从2个($k=2$)高斯分布中取样数据。我们使用$z_{nk}$
+作为指示变量。如果我们选择第$k$个组分(component)作为第$n$个对象
+的来源，那么我们设置$z_{nk}=1$，并且对其他的$j\neq k$，设置$z_{nj}=0$。
+$\boldsymbol{\mu}_{k}$ 和 $\boldsymbol{\Sigma}_{k}$表示第$k$个高斯分布的参数。
+
+如果 $\boldsymbol{x}_{n}$ 是从第 $k$ 个组分中产生的, 
+那么它的密度函数为一个均值和协方差分别为
+$\boldsymbol{\mu}_{k}$ 和 $\boldsymbol{\Sigma}_{k}$ 
+的高斯分布:
+\begin{equation}
+p\left(\boldsymbol{x}_{n} \mid z_{nk}=1, \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)=\mathcal{N}\left(\boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)  
+\end{equation}
+
+
+假设, 对这 2 个组分我们采用如下的均值和协方差,
+\begin{equation}
+\boldsymbol{\mu}_{1}=[3,3]^{\mathrm{T}}, \quad \boldsymbol{\Sigma}_{1}=\left[\begin{array}{ll}
+1 & 0 \\
+0 & 2
+\end{array}\right] \quad \boldsymbol{\mu}_{2}=[1,-3]^{\mathrm{T}}, \quad \boldsymbol{\Sigma}_{2}=\left[\begin{array}{ll}
+2 & 0 \\
+0 & 1
+\end{array}\right]
+\end{equation}
+
+最后, 我们需要定义 $\pi_{\mathrm{k}}$ 。
+如果第一个组分比第二个组分更可能, 
+那么我们使用 $\pi_{1}=0.7$ 、 $\pi_{2}=0.3$。 
+
+以上就是混合模型的生成程序。
+
+\subsubsection{混合模型似然函数}
+为了进行EM算法, 我们需要首先给出似然函数的表达式。
+为了尽可能地通用化, 我们用
+$p\left(\boldsymbol{x}_{n} \mid z_{n k}=1, \Delta_{k}\right)$ 
+表示第$\boldsymbol{k}$个类的密度函数（不一定为高斯分布), 
+其中 $\Delta_{k}$ 为其中的参数。另外, 我们用 
+$\Delta=\left\{\Delta_{1}, \cdots, \Delta_{k}\right\}$ 
+来表示各个组分的参数集合, 并把所有的 $\pi_{k}$ 整合为一个向量 
+$\pi=\left\{\pi_{1}, \cdots, \pi_{k}\right\}$。
+
+我们需要在整个模型下数据 $\boldsymbol{x}_{n}$ 的似然函数
+$p\left(\boldsymbol{x}_{n} \mid \Delta, \pi\right)$。
+为了得到这个表达式, 我们从$z_{n k}=1$的特定数据对象的
+似然函数开始:
+
+\begin{equation}
+p\left(\boldsymbol{x}_{n} \mid z_{n k}=1, \Delta\right)=p\left(\boldsymbol{x}_{n} \mid \Delta_{k}\right) 
+\end{equation}
+
+也就是我们之前定义的$\pi_{k}$。那么有
+
+$$
+\begin{aligned}
+p\left(\boldsymbol{x}_{n} \mid z_{n k}=1, \Delta\right) p\left(z_{n k}=1\right)&=p\left(\boldsymbol{x}_{n} \mid \Delta_{k}\right) p\left(z_{n k}=1\right) \\
+p\left(\boldsymbol{x}_{n}, z_{n k}=1 \mid \Delta, \pi\right)&=p\left(\boldsymbol{x}_{n} \mid \Delta_{k}\right) \pi_{k}
+\end{aligned}
+$$
+
+等式两边对所有的$k$个组分进行求和, 得到似然函数
+$$
+\begin{aligned}
+\sum_{k=1}^{K} p\left(\boldsymbol{x}_{n}, z_{n k}=1 \mid \Delta, \pi\right)&=\sum_{k=1}^{K} p\left(\boldsymbol{x}_{n} \mid \Delta_{k}\right) \pi_{k} \\
+p\left(\boldsymbol{x}_{n} \mid \Delta, \pi\right)&=\sum_{k=1}^{K} \pi_{k} p\left(\boldsymbol{x}_{n} \mid \Delta_{k}\right) 
+\end{aligned}
+$$
+
+根据基本的样本独立性假设, 我们可以得到 $N$ 个数据对象的似然函数:
+\begin{equation}
+p(\boldsymbol{X} \mid \Delta, \pi)=\prod_{n=1}^{N} \sum_{k=1}^{K} \pi_{k} p\left(\boldsymbol{x}_{n} \mid \Delta_{k}\right)  
+\end{equation}
 
 \subsection{EM算法}
-E-step
-\begin{equation*}
-    Q_i(\theta; \theta^t) = \mathbb{E}_{Z_i \sim \mathbb{P}(Z_i | x_i; \theta^t)}[\log P(x_i, z_i; \theta)] + H(Z_i)
-\end{equation*}
-M-step
-\begin{equation*}
-    \begin{aligned}
-        \theta^{t+1} &= \underset{\theta}{\arg\max}  \sum_{i=1}^n(\sum_{k=1}^K \gamma_{ik} \log P(x_i, z_i=k;\theta)) \\    
-                     &= \underset{\theta}{\arg\max}  \sum_{k=1}^K\sum_{i=1}^n \gamma_{ik} \log (P(z_i=k;\theta)P(x_i|z_i=k;\theta)) \\    
-                     &= \underset{\theta}{\arg\max}  \sum_{k=1}^K (\sum_{i=1}^n\log (P(z_i=k;\theta)+\sum_{i=1}^n\log (P(x_i, z_i=k;\theta) ))
-    \end{aligned}
-\end{equation*}
+我们现在需要说明使用EM算法求似然函数的最大值。
+首先对似然函数取自然对数, 即,
+\begin{equation}
+L=\log p(\boldsymbol{X} \mid \Delta, \pi)=\sum_{n=1}^{N} \log \sum_{k=1}^{K} \pi_{k} p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right) 
+\end{equation}
+对数内的求和使我们直接寻找最优的 
+$\boldsymbol{\mu}_{k}$ 、$\boldsymbol{\Sigma}_{k}$
+、$\pi$ 参数值比较困难。而EM算法通过计算似然函数的一个下界
+来解决这个问题。我们不再直接对 $L$ 进行最大化, 而转为对它的下界最大化。
 
-\subsection{两个例子}
+为了得到 $L$ 的下界, 我们可以使用下面期望的对数和对数的期望关系, 也就是著名的 
+\textbf{詹森(Jensen)不等式}:
+\begin{equation}
+    \log \boldsymbol{E}_{p(z)}\{f(z)\} \geqslant \boldsymbol{E}_{p(z)}\{\log f(z)\}
+\end{equation}
+也就是说, $f(z)$ 期望值的对数总是大于等于 $\log f(z)$ 旳期望值。
 
-Example 1 (Three coins)
+为了能够应用詹森不等式来求似然函数的下界, 
+我们将对$k$求和的公式内的表达式先乘后除以一个新的变量$q_{n k}$。
+\begin{equation}
+L=\sum_{n=1}^{N} \log \sum_{k=1}^{K} \pi_{k} p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right) \frac{q_{n k}}{q_{n k}}   
+\end{equation}
 
-$z_i\in\{0,1\}$ 
-\begin{table*}
-    \begin{tabular}{c | c c}
-        $z_i$ & 0 & 1 \\
-        $mathbb{P}$ & $1-\pi$ & $\pi$ \\
-    \end{tabular}
-\end{table*}
+如果我们约束$q_{n k}$是正的且满足求和约束条件
+$\sum_{k=1}^{K} q_{n k}=1$ 
+(也就是说, $q_{nk}$ 表示第$n$个个体
+在这个$k$个组分中的概率分布), 
+那么我们可以重新整理公式为基于$q_{nk}$的期望, 即,
+$$
+\begin{aligned}
+L &=\sum_{n=1}^{N} \log \sum_{k=1}^{K} q_{n k} \frac{\pi_{k} p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)}{q_{n k}} \\
+&=\sum_{n=1}^{N} \log \boldsymbol{E}_{q_{\mu_{k}}}\left\{\frac{\pi_{k} p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)}{q_{n k}}\right\}
+\end{aligned}
+$$
+利用詹森不等式, 我们可以得到 $L$ 的下界,
+$$
+L=\sum_{n=1}^{N} \log \boldsymbol{E}_{q_{m *}}\left\{\frac{\pi_{k} p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)}{q_{n k}}\right\} \geqslant \sum_{n=1}^{N} \boldsymbol{E}_{q_{\tau_{k}}}\left\{\log \frac{\pi_{k} p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)}{q_{n k}}\right\}
+$$
+不等式的右侧部分就是我们需要优化的表达式的下界 (记为 $\mathcal{B})$ 。把表达式展开, 我们 将更容易操作。
+$$
+\begin{aligned}
+\mathcal{B} &=\sum_{n=1}^{N} \boldsymbol{E}_{q_{*}}\left\{\log \frac{\pi_{k} p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)}{q_{n k}}\right\} \\
+&=\sum_{n=1}^{N} \sum_{k=1}^{K} q_{n k} \log \left(\frac{\pi_{k} p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)}{q_{n k}}\right) \\
+&=\sum_{n=1}^{N} \sum_{k=1}^{K} q_{n k} \log \pi_{k}+\sum_{n=1}^{N} \sum_{k=1}^{K} q_{n k} \log p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)-\sum_{n=1}^{N} \sum_{k=1}^{K} q_{n k} \log q_{n k}
+\end{aligned}
+$$
+使得这个下界达到局部最大值的 $q_{n k} 、 \pi 、 \boldsymbol{\mu}_{k} 、 \boldsymbol{\Sigma}_{k}$ 参数值也会使对数似然函数 $L$ 达到最大。
+就像我们前面提到的, EM算法是一个迭代算法。
+这就需要我们不断地重复更新模型中的数值直到收敛。
+为了每次更新, 我们需要计算 $\mathcal{B}$ 针对某个参数的偏导数, 
+并令其等于0, 然后求解。下面我们将对各个参数依次求解。
 
-\begin{table*}
-    \begin{tabular}{c | c | c c}
-        $x_i$ & $z_i=0$ & 0 & 1 \\
-        & $mathbb{P}$ & $1-p$ & $p$ \\
-    \end{tabular}
-\end{table*}
+\subsubsection{更新$\pi_k$}
 
-\begin{table*}
-    \begin{tabular}{c | c | c c}
-        $x_i$ & $z_i=1$ & 0 & 1 \\
-        & $mathbb{P}$ & $1-q$ & $q$ \\
-    \end{tabular}
-\end{table*}
+只有 $\mathcal{B}$ 的第一部分包含 $\pi_{k}$ (其他部分对 
+$\pi_{k}$ 的偏导数为 0 )。 $\pi_{k}$ 是一个概率, 所以有 $\sum_{k} \pi_{k}=1$ 。
+因此, 对 $\pi_{k}$ 进行优化是有条件约束的。
+使用拉格朗日算法将约束条件整合进目标函数：
+\begin{equation}
+    \mathcal{B}=\sum_{n=1}^{N} \sum_{k=1}^{K} q_{n k} \log \pi_{k}-\lambda\left(\sum_{k=1}^{K} \pi_{k}-1\right)+\cdots
+\end{equation}
+对上式求 $\pi_{k}$ 的偏导数, 并使其等于 0 , 然后整理, 得到,
+$$
+\begin{aligned}
+\frac{\partial \mathcal{B}}{\partial \pi_{k}}=\frac{\sum_{n=1}^{N} q_{n k}}{\pi_{k}}-\lambda &=0 \\
+\sum_{n=1}^{N} q_{n k} &=\lambda \pi_{k}
+\end{aligned}
+$$
+最后我们需要计算 $\lambda$, 等式两边对 $k$ 求和, 可得:
 
-\begin{equation*}
-    Q(\theta; \theta^t) = \sum_{i=1}^n \gamma_{i0} \log (1-\pi) + \sum_{i=1}^n \gamma_{i0} \log p^{x_i} (1-p)^{1-x_i}
-    + \sum_{i=1}^n \gamma_{i1} \log \pi + \sum_{i=1}^n \gamma_{i1} \log q^{x_i} (1-q)^{1-x_i}
-\end{equation*}
+$$
+\begin{aligned}
+\sum_{k=1}^{K} \sum_{n=1}^{N} q_{n k} &=\lambda \sum_{k=1}^{K} \pi_{k} \\
+\sum_{n=1}^{N} 1 &=\lambda \\
+\lambda &=N
+\end{aligned}
+$$
+其中我们用到了 $\sum_{k=1}^{K} q_{n k}=1$ 
+和 $\sum_{k=1}^{K} \pi_{k}=1$ 的事实。
+将 $\lambda=N$ 代人, 可以得到 $\pi_{k}$ 的表达式为:
+\begin{equation}
+    \pi_{k}=\frac{1}{N} \sum_{n=1}^{N} q_{n k}
+\end{equation}
 
-补充$p, q, \pi$计算
+\subsubsection{更新$\boldsymbol{\mu_k}$}
 
-\textbf{作业}
+接下来, 我们考虑 $\boldsymbol{\mu}_{k}, \mathcal{B}$ 中
+只有第 2 部分包含 $\boldsymbol{\mu}_{k}$ 。
+如果我们将 $p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)$ 
+作为多变量高斯分布的密度函数, 并展开, 可得:
+$$
+\begin{aligned}
+\mathcal{B} &=\sum_{n=1}^{N} \sum_{k=1}^{K} q_{n k} \log \left(\frac{1}{(2 \pi)^{d / 2}\left|\boldsymbol{\Sigma}_{k}\right|^{1 / 2}} \exp \left(-\frac{1}{2}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)^{\mathrm{T}} \boldsymbol{\Sigma}_{k}^{-1}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)\right)\right)+\cdots \\
+&=-\frac{1}{2} \sum_{n=1}^{N} \sum_{k=1}^{K} q_{n k} \log \left((2 \pi)^{d}\left|\boldsymbol{\Sigma}_{k}\right|\right)-\frac{1}{2} \sum_{n=1}^{N} \sum_{k=1}^{K} q_{n k}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)^{\mathrm{T}} \boldsymbol{\Sigma}_{k}^{-1}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)+\cdots
+\end{aligned}
+$$
+第一部分不包含 $\boldsymbol{\mu}_{k}$, 因此可以忽略。
+利用下面的性质,
+$$
+\begin{aligned}
+f(w)=w^{\mathrm{T}} \boldsymbol{C} w, \quad \frac{\partial f(w)}{\partial w}=2 C w
+\end{aligned}
+$$
+和链式法则, 我们可以求 $B$ 对 $\boldsymbol{\mu}_{k}$ 的偏导数,
+$$
+\begin{aligned}
+\frac{\partial \mathcal{B}}{\partial \boldsymbol{\mu}_{k}} &=-\frac{1}{2} \sum_{n=1}^{N} q_{nk} \times \frac{\partial\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)^{\mathrm{T}} \boldsymbol{\Sigma}_{k}^{-1}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)}{\partial\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)} \times \frac{\partial\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)}{\partial \boldsymbol{\mu}_{k}} \\
+&=\sum_{n=1}^{N} q_{n k} \boldsymbol{\Sigma}_{k}^{-1}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)
+\end{aligned}
+$$
+令其等于 0 并整理, 可以得到 $\boldsymbol{\mu}_{k}$ 的表达式,
+$$
+\begin{aligned}
+\sum_{n=1}^{N} q_{n k} \boldsymbol{\Sigma}_{k}^{-1}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right) &=0 \\
+\sum_{n=1}^{N} q_{n k} \boldsymbol{\Sigma}_{k}^{-1} \boldsymbol{x}_{n} &=\sum_{n=1}^{N} q_{n k} \boldsymbol{\Sigma}_{k}^{-1} \boldsymbol{\mu}_{k} \\
+\sum_{n=1}^{N} q_{n k} \boldsymbol{x}_{n} &=\boldsymbol{\mu}_{k} \sum_{n=1}^{N} q_{n k} \\
+\boldsymbol{\mu}_{k} &=\frac{\sum_{n=1}^{N} q_{n k} \boldsymbol{x}_{n}}{\sum_{n=1}^{N} q_{n k}}
+\end{aligned}
+$$
 
-Example 2. GMM
+\subsubsection{更新$\boldsymbol{\Sigma_k}$}
+与 $\boldsymbol{\mu}_{k}$ 一样, 
+我们只需要考虑 $\mathcal{B}$ 中的项 
+$p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)$ 。
+我们将该项展开：
+\begin{equation}
+    \mathcal{B}=-\frac{1}{2} \sum_{n=1}^{N} \sum_{k=1}^{K} q_{n k} \log \left((2 \pi)^{d}\left|\boldsymbol{\Sigma}_{k}\right|\right)-\frac{1}{2} \sum_{n=1}^{N} \sum_{k=1}^{K} q_{n k}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)^{\mathrm{T}} \boldsymbol{\Sigma}_{k}^{-1}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)+\cdots 
+\end{equation}
 
+忽略第一项中的常数部分 $(2 \pi)$, 我们得到,
+\begin{equation}
+    \mathcal{B}=-\frac{1}{2} \sum_{n=1}^{N} \sum_{k=1}^{K} q_{n k} \log \left(\left|\boldsymbol{\Sigma}_{k}\right|\right)-\frac{1}{2} \sum_{n=1}^{N} \sum_{k=1}^{K} q_{n k}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)^{\mathrm{T}} \boldsymbol{\Sigma}_{k}^{-1}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)+\cdots 
+\end{equation}
+为了对 $\boldsymbol{\Sigma}_{k}$ 求偏导数, 我们需要以下的性质:
+\begin{equation}
+    \frac{\partial \log |\boldsymbol{C}|}{\partial \boldsymbol{C}}=\left(\boldsymbol{C}^{\mathrm{T}}\right)^{-1}  
+\end{equation}
+和
+\begin{equation}
+    \frac{\partial \boldsymbol{a}^{\mathrm{T}} \boldsymbol{C}^{-1} \boldsymbol{b}}{\partial \boldsymbol{C}}=-\left(\boldsymbol{C}^{\mathrm{T}}\right)^{-1} \boldsymbol{a} \boldsymbol{b}^{\mathrm{T}}\left(\boldsymbol{C}^{\mathrm{T}}\right)^{-1}    
+\end{equation}
+利用这两个性质, 我们可以求 $\mathcal{B}$ 对 $\boldsymbol{\Sigma}_{k}$ 的偏导数。
+\begin{equation}
+    \frac{\partial \mathcal{B}}{\partial \boldsymbol{\Sigma}_{k}}=-\frac{1}{2} \sum_{n=1}^{N} q_{n \boldsymbol{k}} \boldsymbol{\Sigma}_{k}^{-1}+\frac{1}{2} \sum_{n=1}^{N} q_{n k} \boldsymbol{\Sigma}_{k}^{-1}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)^{\mathrm{T}} \boldsymbol{\Sigma}_{k}^{-1}    
+\end{equation}
+注意, $\boldsymbol{\Sigma}_{k}$ 是一个协方差矩阵, 是对称的, 
+因此 $\boldsymbol{\Sigma}_{k}^{\mathrm{T}}=\boldsymbol{\Sigma}_{k}$ 。令该式等于 0 并整理, 得到
+$$
+\begin{aligned}
+&-\frac{1}{2} \sum_{n=1}^{N} q_{n k} \boldsymbol{\Sigma}_{k}^{-1}+\frac{1}{2} \sum_{n=1}^{N} q_{n k} \boldsymbol{\Sigma}_{k}^{-1}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)^{\mathrm{T}} \boldsymbol{\Sigma}_{k}^{-1}=0 \\
+&\frac{1}{2} \sum_{n=1}^{N} q_{n k} \boldsymbol{\Sigma}_{k}^{-1}=\frac{1}{2} \sum_{n=1}^{N} q_{n k} \boldsymbol{\Sigma}_{k}^{-1}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)^{\mathrm{T}} \boldsymbol{\Sigma}_{k}^{-1}
+\end{aligned}
+$$
+在等式两侧分别左乘和右乘 $\boldsymbol{\Sigma}_{k}$, 可以使我们消掉 $\boldsymbol{\Sigma}_{k}^{-1}$ :
+$$
+\begin{aligned}
+\boldsymbol{\Sigma}_{k} \sum_{n=1}^{N} q_{n k} \boldsymbol{\Sigma}_{k}{ }^{-1} \boldsymbol{\Sigma}_{k} &=\boldsymbol{\Sigma}_{k} \boldsymbol{\Sigma}_{k}^{-1} \sum_{n=1}^{N} q_{n k}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)^{\mathrm{T}} \boldsymbol{\Sigma}_{k}{ }^{-1} \boldsymbol{\Sigma}_{k} \\
+\boldsymbol{\Sigma}_{k} \sum_{n=1}^{N} q_{n k} &=\sum_{n=1}^{N} q_{n k}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)^{\mathrm{T}} \\
+\boldsymbol{\Sigma}_{k} &=\frac{\sum_{n=1}^{N} q_{n k}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)^{\mathrm{T}}}{\sum_{n=1}^{N} q_{n k}}
+\end{aligned}
+$$
+
+\subsubsection{E步——更新$q_{nk}$}
+最后, 我们更新 $q_{n k}$, 它在 $\mathcal{B}$ 的三项中都出现。
+另外, 它受条件 $\sum_{k=1} q_{n k}=1$ 的约束, 因此类似于更新 $\pi_{k}$。
+我们使用拉格朗日项。下界 $\mathcal{B}$ 和拉格朗日项为:
+$$
+\begin{aligned}
+\mathcal{B}=& \sum_{n=1}^{N} \sum_{k=1}^{K} q_{n k} \log \pi_{k}+\sum_{n=1}^{N} \sum_{k=1}^{K} q_{n k} \log p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)-\sum_{n=1}^{N} \sum_{k=1}^{K} q_{n k} \log q_{n k} \\
+&-\lambda\left(\sum_{k=1}^{K} q_{n k}-1\right)
+\end{aligned}
+$$
+对 $q_{n k}$ 求偏导数, 得到,
+$$
+\frac{\partial \mathcal{B}}{\partial q_{n k}}=\log \pi_{k}+\log p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)-\left(1+\log q_{n k}\right)-\lambda
+$$
+
+令其等于 0, 整理并求指数, 得到了 $q_{n k}$ 的表达式:
+$$
+\begin{aligned}
+1+\log q_{n k}+\lambda &=\log \pi_{k}+\log p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right) \\
+\exp \left(\log q_{nk}+(\lambda+1)\right) &=\exp \left(\log \pi_{k}+\log p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)\right) \\
+q_{nk} \exp (\lambda+1) &=\pi_{k} p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)
+\end{aligned}
+$$
+与更新 $\pi_{k}$ 一样, 为了得到常数项 (此时为 $\exp (\lambda+1)$ ), 我们对等式两边的 $k$ 项求和, 得到:
+$$
+\begin{aligned}
+\exp (\lambda+1) \sum_{k=1}^{K} q_{n k} &=\sum_{k=1}^{K} \pi_{k} p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right) \\
+\exp (\lambda+1) &=\sum_{k=1}^{K} \pi_{k} p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)
+\end{aligned}
+$$
+从而得到 $q_{nk}$ 的表达式:
+$$
+q_{n k}=\frac{\pi_{k} p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)}{\sum_{j=1}^{K} \pi_{j} p\left(\boldsymbol{x}_{n} \mid \mu_{j}, \boldsymbol{\Sigma}_{j}\right)}
+$$
+
+\newpage
+\textbf{作业}：写一个GMM函数
+
+\textbf{GMM模型}：
+
+\begin{equation}
+L=\log p(\boldsymbol{X} \mid \Delta, \pi)=\sum_{n=1}^{N} \log \sum_{k=1}^{K} \pi_{k} \boldsymbol{N}\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right) 
+\end{equation}
+
+\textbf{E步}
+$$
+q_{n k}=\frac{\pi_{k} p\left(\boldsymbol{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)}{\sum_{j=1}^{K} \pi_{j} p\left(\boldsymbol{x}_{n} \mid \mu_{j}, \boldsymbol{\Sigma}_{j}\right)}
+$$
+
+\textbf{M步}
+
+\begin{equation}
+    \pi_{k}=\frac{1}{N} \sum_{n=1}^{N} q_{n k}
+\end{equation}
+
+$$
+\begin{aligned}
+\boldsymbol{\mu}_{k} &=\frac{\sum_{n=1}^{N} q_{n k} \boldsymbol{x}_{n}}{\sum_{n=1}^{N} q_{n k}}
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+\boldsymbol{\Sigma}_{k} &=\frac{\sum_{n=1}^{N} q_{n k}\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)\left(\boldsymbol{x}_{n}-\boldsymbol{\mu}_{k}\right)^{\mathrm{T}}}{\sum_{n=1}^{N} q_{n k}}
+\end{aligned}
+$$
+
+
+\newpage
+\section{Lecture 9}
+2022.4.18
+
+\textbf{Outline}
+\begin{enumerate}
+    \item EM-ELBO
+    \item EM for unsupervised task Naive Bayes
+    \item EM+Bayesian
+    \item SeqModel+HMM
+\end{enumerate}
+
+\subsection{EM-ELBO}
+EM算法的E-step需要算出，在已知观测样本$x_n$的条件下，
+该样本来自于第 $k$ 个子分布 $\left(z_{k}=1\right)$ 的概率。
+
+$$
+\begin{aligned}
+\gamma\left(z_{n k}\right)=P\left(z_{k}=1 \mid \boldsymbol{x}_{n}\right) &=\frac{P\left(\boldsymbol{x}_{n} \mid z_{k}=1\right) P\left(z_{k}=1\right)}{\sum_{k=1}^{K} P\left(\boldsymbol{x}_{n} \mid z_{k}=1\right) P\left(z_{k}=1\right)} \\
+&=\frac{\pi_{k} P\left(\boldsymbol{x}_{n} \mid \boldsymbol{\theta}_{k}\right)}{\sum_{k=1}^{K} \pi_{k} P\left(\boldsymbol{x}_{n} \mid \boldsymbol{\theta}_{k}\right)}
+\end{aligned}
+$$
+
+Variational inference (变分推论) 是为了解决当真实后验分布 
+$p_{\theta}(z \mid x)=\frac{p_{\theta}(x \mid z) p_{\theta}(z)}{p_{\theta}(x)}$ 难以计算的情况下，用一个方便学习的分布 $q_{\phi}(z \mid x)$来近似真实后验分布 $p_{\theta}(z \mid x)$.
+因此对x的log-likelihood function可以写成 
+$\log p_{\theta}(x)=D_{K L}\left(q_{\phi}(z \mid x)|| p_{\theta}(z \mid x)\right)+\mathcal{L}(\theta, \phi ; x)$. 
+其中$D_{K L}\left(q_{\phi}(z \mid x)|| p_{\theta}(z \mid x)\right)$ 
+是让学到的分布$q_{\phi}(z \mid x)$去接近真实后验分布$p_{\theta}(z \mid x)$，$\mathcal{L}(\theta, \phi ; x)$是variational lower bound, 也叫evidence lower bound (ELBO)。
+
+
+
+下面来计算 $\mathcal{L}(\theta, \phi ; x)$ :
+$$
+\begin{aligned}
+\mathcal{L}(\theta, \phi ; x)&=\log p_{\theta}(x)-D_{K L}\left(q_{\phi}(z \mid x)|| p_{\theta}(z \mid x)\right) \\
+&=\int q_{\phi}(z \mid x) \log p_{\theta}(x) d z-\int q_{\phi}(z \mid x) \log \frac{q_{\phi}(z \mid x)}{p_{\theta}(z \mid x)} d z \\
+&=\int q_{\phi}(z \mid x) \log p_{\theta}(x)-q_{\phi}(z \mid x) \log q_{\phi}(z \mid x)+q_{\phi}(z \mid x) \log p_{\theta}(z \mid x) d z \\
+&=\int-q_{\phi}(z \mid x) \log q_{\phi}(z \mid x)+q_{\phi}(z \mid x)\left(\log p_{\theta}(x)+\log p_{\theta}(z \mid x)\right) d z \\
+&=\int-q_{\phi}(z \mid x) \log q_{\phi}(z \mid x)+q_{\phi}(z \mid x)\left(\log p_{\theta}(x, z)\right) d z \\
+&=\mathbb{E}_{q_{\phi}(z \mid x)}\left[-\log q_{\phi}(z \mid x)+\log p_{\theta}(x, z)\right]
+\end{aligned}
+$$
+以上为一个简单的ELBO形式。再继续往下推:
+$$
+\begin{aligned}
+\mathcal{L}(\theta, \phi ; x) &=\mathbb{E}_{q_{\phi}(z \mid x)}\left[-\log q_{\phi}(z \mid x)+\log \left(p_{\theta}(x \mid z) p_{\theta}(z)\right)\right] \\
+\mathcal{L}(\theta, \phi ; x) &=\mathbb{E}_{q_{\phi}(z \mid x)}\left[\log \frac{p_{\theta}(z)}{q_{\phi}(z \mid x)}+\log p_{\theta}(x \mid z)\right] \\
+\mathcal{L}(\theta, \phi ; x) &=\int q_{\phi}(z \mid x) \log \frac{p_{\theta}(z)}{q_{\phi}(z \mid x)} d z+\mathbb{E}_{q_{\phi}(z \mid x)}\left[\log p_{\theta}(x \mid z)\right] \\
+\mathcal{L}(\theta, \phi ; x) &=-\mathrm{KL}\left[p_{\theta}(z) \| q_{\phi}(z \mid x)\right]+\mathbb{E}_{q_{\phi}(z \mid x)}\left[\log p_{\theta}(x \mid z)\right]
+\end{aligned}
+$$
+以上就是我们熟知的ELBO的形式，
+等式右边第一项是预设的prior与学到的z的分布的负KL-divergence，
+第二项是对 $x$ 的log-likelihood，这些我们都是知道的。
+
+ELBO是x的log-likelihood函数的下界
+$$
+\begin{aligned}
+\log p(\boldsymbol{x}) &=\mathrm{ELBO}(q)+\mathrm{KL}(q(\boldsymbol{z}) \| p(\boldsymbol{z} \mid \boldsymbol{x})) \\
+& \geq \operatorname{ELBO}(q)
+\end{aligned}
+$$
+最小化$\mathrm{KL}(q(z) \| p(z \mid x))$ 等价于最大化 $\operatorname{ELBO}(q)$
+$$
+\begin{aligned}
+q^{*}(\boldsymbol{z}) &=\underset{q(\boldsymbol{z}) \in Q}{\operatorname{argmin}} \mathrm{KL}(q(z) \| \overbrace{p(\boldsymbol{z} \mid \boldsymbol{x})}^{\text {unknown }}) \\
+&=\underset{q(z) \in Q}{\operatorname{argmax}} \operatorname{ELBO}(q)
+\end{aligned}
+$$
+
+\subsection{ EM for unsupervised task——Naive Bayes}
+Data: $\{x_i\}_{i=1}^N$, $x_i$代表一个文档, $x_{ij}$代表一个词向量,
+$x_{ij}\in\{1,...,d,...,D\}$
+
+Model: 
+\begin{enumerate}
+    \item 对类别建模，$P(y_i)=\prod_{k=1}^K\theta_k ^{I(y_i=k)}$
+    \item $P(x_{ij}|y_i)$ 类别为$y_i$的文档中，单词$x_{ij}$出现的概率。
+    记该矩阵为$B$,矩阵中的每一个元素记为$b_{kd}$。则$P(x_{i}|y_i)=\prod_{j=1}^{l_i}P(x_{ij}|y_i)$
+    \item 极大似然估计：$P(x_i,y_i;\theta)=P(y_i)P(x_i|y_i)$(注：$\theta$的个数为$(K-1)+K\times(D-1)$)
+    \item 后验分布：$P(y_i|x_i;\theta)=\gamma _{ik}$
+    \item 在EM算法中求$\sum_{i=1}^N\sum_{k=1}^K\gamma_{ik}log P(x_i,y_i=k;\theta)$
+\end{enumerate}
+\begin{algorithm}[htb]
+    \caption{EM for U-NB}
+    \label{alg:EM-U-NB}
+    \begin{algorithmic}[1]
+    \REQUIRE
+    X; \\
+    \ENSURE 
+    $\Theta$,B; \\
+    \REPEAT 
+    \STATE E-step: $\gamma_{ik}$
+    \STATE M-step: $\Theta$,B
+    \UNTIL $\mid\mid \Theta^{t+1} -\Theta^t \mid\mid \leq \epsilon$
+    \RETURN $\Theta$,B;
+    \end{algorithmic}
+\end{algorithm}
+
+可以看作$X_{N\times D}=\gamma_{N\times K}B_{K\times D}$
+
+\subsection{EM+Bayesian}
+如图\ref{fig:bay}所示，$y_i$的分布$\theta$由以$\alpha$为参数的分布决定。
+具体的算法流程如算法\ref{alg:EM+B}所示。
+\begin{figure*}
+    \centering
+    \includegraphics{./figure/bayesian.png}
+    \caption{EM+Bayesian概率图
+    \label{fig:bay}}
+\end{figure*}
+
+
+\begin{algorithm}[htb]
+\caption{EM+Bayesian}
+\label{alg:EM+B}
+\begin{algorithmic}[1]
+\REQUIRE
+X; \\
+\ENSURE 
+$\alpha$,B; \\
+\REPEAT 
+\STATE E-step: $\gamma_{ik}=P(y_i,\theta|x_i;\alpha,B)$
+\STATE M-step: $\sum_{i=1}^N\int_{\theta} P(y_i,\theta) \log P(x_i,y_i,\theta|\alpha,B)d{\theta}$
+\UNTIL 
+\RETURN $\alpha$,B;
+\end{algorithmic}
+\end{algorithm}
+
+
+\subsection{SeqModel+HMM}
+隐马尔可夫模型：隐藏的马尔可夫链随机生成的状态的序列，称为\textbf{状态序列}；
+每个状态生成一个观测，而由此产生的观测的随机序列，称为\textbf{观测序列}。
+序列的每一个位置又可以看作是一个时刻。
+
+例如， $\mathrm{N}$ 个袋子，每个袋子中有 $\mathrm{M}$ 种不同颜色的球。选择一个袋子，取出一个球，得到球的颜色。
+\begin{enumerate}
+    \item 状态数为 $N$ (袋子的数量)
+    \item 每个状态可能的符号数 $\mathrm{M}$ (不同颜色球的数目)
+    \item 状态转移概率矩阵 $\mathrm{A}=a_{i j}$ (从一只袋子(状态 Si) 转向另一只袋子(状态 $\mathrm{Sj}$ ) 取球的概率)
+    \item 从状态 $\mathrm{Sj}$ 观察到某一特定符号 $\mathrm{vk}$ 的概率分布矩阵为: $B=b_{j}(k)$ (从第 $\mathrm{j}$ 个袋子中取出第 $\mathrm{k}$ 种颜色的球的概率)
+    \item 初始状态的概率分布为: $\pi=\pi_{i}$
+\end{enumerate}
+
+一般将一个隐马尔可夫模型记为: $\lambda=[\pi, A, B]$
+需要确定以下三方面内容（三要素）：
+\begin{enumerate}
+    \item 初始状态概率 $\pi$ : 模型在初始时刻各状态出现的概率，通常记为 $\pi=\left(\pi_{1}, \pi_{2}, \ldots, \pi_{N}\right), \pi_{i}$ 表示模型的初始状态为 $S_{i}$ 的概率.
+    \item 状态转移概率 $\mathrm{A}$ : 模型在各个状态间转换的概率，通常记为矩阵 $\mathrm{A}\left[a_{i j}\right]$ ，其中 $a_{i j}$ 表示在任意时 刻 $\mathrm{t}$ ，若状态为 $\mathrm{Si}$ ，则在下一时刻状态为 $\mathrm{Sj}$ 的概率.
+    \item 输出观测概率 B: 模型根据当前状态获得各个观测值的概率通常记为矩阵 $B=\left[\left(b_{i j}\right)\right]$ 。其中， $b_{i j}$ 表示在任意时刻 $\mathrm{t}$ ，若状态为 $S_{i}$ ，则观测值 $O_{j}$ 被获取的概率.
+\end{enumerate}
+
+相对于马尔可夫模型，隐马尔可夫只是多了一个各状态的观测概率
+给定隐马尔可夫模型 $\lambda=[A, B, \pi] $,它按如下过程产生观测序列 $\{X 1, X 2,\ldots, X n\}$ :
+\begin{enumerate}
+    \item 设置 $t=1$ ，并根据初始状态概率 $\pi$ 选择初始状态 $Y_{1}$ ；
+    \item 根据状态值和输出观测概率 B 选择观测变量取值 $X_{t}$;
+    \item 根据状态值和状态转移矩阵 $\mathrm{A}$ 转移模型状态，即确定 $Y_{t+1}$ ；
+\end{enumerate}
+
+\subsubsection{概率计算问题}
+给定模型$\lambda=[\pi, A, B]$和观测序列$O=(o_1,\ldots,o_T)$，计算在模型$\lambda$
+下观测序列$O$出现的概率$P(O|\lambda)$
+
+\textbf{1. 直接计算法}:
+对所有可能的状态序列$I$求和
+$$
+\begin{aligned}
+    P(O|\lambda)
+    &=\sum_I P(O|I,\lambda)P(I|\lambda)\\
+    &=\sum \pi_i a_{i_1 i_2}\ldots a_{i_{T-1}i_T} \quad b_{i_1}(O_1)\ldots  b_{i_T}(O_T)
+\end{aligned}
+$$
 
 \end{document}
-
-
 
 
 

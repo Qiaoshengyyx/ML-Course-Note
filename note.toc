@@ -37,6 +37,18 @@
 \contentsline {subsubsection}{\numberline {7.3.2}二维伯努利分布的混合模型}{23}{subsubsection.7.3.2}%
 \contentsline {subsubsection}{\numberline {7.3.3}混合系数$\pi _k$的求解}{24}{subsubsection.7.3.3}%
 \contentsline {subsection}{\numberline {7.4}EM算法}{25}{subsection.7.4}%
-\contentsline {section}{\numberline {8}Lecture 8}{25}{section.8}%
-\contentsline {subsection}{\numberline {8.1}EM算法}{26}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}两个例子}{26}{subsection.8.2}%
+\contentsline {section}{\numberline {8}Lecture 8}{26}{section.8}%
+\contentsline {subsection}{\numberline {8.1}EM-principle}{26}{subsection.8.1}%
+\contentsline {subsubsection}{\numberline {8.1.1}生成过程}{26}{subsubsection.8.1.1}%
+\contentsline {subsubsection}{\numberline {8.1.2}混合模型似然函数}{26}{subsubsection.8.1.2}%
+\contentsline {subsection}{\numberline {8.2}EM算法}{27}{subsection.8.2}%
+\contentsline {subsubsection}{\numberline {8.2.1}更新$\pi _k$}{28}{subsubsection.8.2.1}%
+\contentsline {subsubsection}{\numberline {8.2.2}更新$\boldsymbol {\mu _k}$}{28}{subsubsection.8.2.2}%
+\contentsline {subsubsection}{\numberline {8.2.3}更新$\boldsymbol {\Sigma _k}$}{29}{subsubsection.8.2.3}%
+\contentsline {subsubsection}{\numberline {8.2.4}E步——更新$q_{nk}$}{30}{subsubsection.8.2.4}%
+\contentsline {section}{\numberline {9}Lecture 9}{32}{section.9}%
+\contentsline {subsection}{\numberline {9.1}EM-ELBO}{32}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2} EM for unsupervised task——Naive Bayes}{33}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}EM+Bayesian}{33}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}SeqModel+HMM}{34}{subsection.9.4}%
+\contentsline {subsubsection}{\numberline {9.4.1}概率计算问题}{35}{subsubsection.9.4.1}%
