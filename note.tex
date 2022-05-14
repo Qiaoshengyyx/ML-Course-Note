@@ -1,9 +1,11 @@
 \documentclass[UTF8]{ctexart}
 \usepackage{amsmath, enumerate, float, amssymb, lmodern}
+\numberwithin{equation}{section}
 \usepackage{multirow} %用于跨行
 \usepackage{graphicx}%这是一个图片宏包，可处理图片的尺寸
 \usepackage{float}
 \usepackage{amssymb}
+
 \usepackage{fancybox}
 \usepackage{algorithm}
 \usepackage{algorithmic}
@@ -1668,6 +1670,205 @@ $$
     &=\sum \pi_i a_{i_1 i_2}\ldots a_{i_{T-1}i_T} \quad b_{i_1}(O_1)\ldots  b_{i_T}(O_T)
 \end{aligned}
 $$
+
+\section{Lecture 12}
+Outline
+\begin{itemize}
+    \item Undirected Graphical Model
+    \item Revisit: $\lambda$
+    \item $\lambda ++$: Reinforcement Learning: An Introduction
+\end{itemize}
+
+\subsection{作业}
+分别用MLE和EM算法求解含有隐变量$h$的无向图模型。
+
+
+\subsubsection*{MLE}
+首先,
+\begin{equation}
+    \nabla_\theta \sum_{i=1}^n\ln P(v_i; \theta) = \sum_{i=1}^n  \nabla_\theta \ln \sum_{h_i} P(v_i, h_i; \theta) \label{start_eq}
+\end{equation}
+
+对于 $\nabla_\theta \ln \sum_{h_i} P(v_i, h_i; \theta)$ 进行计算，有
+\begin{equation}
+    \frac{1}{\sum_{h_i} P(v_i, h_i; \theta)} \sum_{h_i} \nabla_\theta P(v_i, h_i; \theta) \label{mid_eq}
+\end{equation}
+我们可以先看$\ln P(v,h; \theta)$， 有
+\begin{equation*}
+    \ln P(v,h; \theta) = -E(v,h;\theta) - \ln Z(\theta)
+\end{equation*}
+关于$\theta$求导，有
+\begin{equation*}
+    \frac{1}{P(v, h; \theta)}  \nabla_\theta P(v, h; \theta) = -\nabla_{\theta} E(v,h;\theta) - \frac{1}{Z(\theta)}\nabla_\theta Z(\theta)
+\end{equation*}
+从而得到
+\begin{equation*}
+    \nabla_\theta P(v, h; \theta) = P(v, h; \theta) * (-\nabla_{\theta} E(v,h;\theta) - \frac{1}{Z(\theta)}\nabla_\theta Z(\theta))
+\end{equation*}
+可以将其代入 公式 \ref{mid_eq}, 从而有
+\begin{equation}
+    \begin{aligned}
+        \frac{1}{\sum_{h_i} P(v_i, h_i; \theta)} \sum_{h_i} \nabla_\theta P(v_i, h_i; \theta)
+        &= \frac{1}{\sum_{h_i} P(v_i, h_i; \theta)} \sum_{h_i} P(v_i, h_i; \theta)(-\nabla_{\theta} E(v_i,h_i;\theta) - \frac{1}{Z(\theta)}\nabla_\theta Z(\theta))
+    \end{aligned}
+    \label{third_eq}
+\end{equation}
+其中$\frac{1}{Z(\theta)}\nabla_\theta Z(\theta)$ 在第一个无向图模型问题中求过，如下
+\begin{equation*}
+    \begin{aligned}
+        \frac{\nabla_\theta Z(\theta)}{Z(\theta)} 
+        &= \iint \frac{exp\{-E(v,h;\theta)\}}{Z(\theta)}(-\nabla_\theta E(v,h;\theta)) dv dh   \\
+        &= -\mathbb{E}_{(v,h)\sim P(v,h;\theta)}[\nabla_\theta E(v,h;\theta)]
+    \end{aligned}
+\end{equation*}
+且它与$\sum_{h_i}$无关，同时，$\sum_{h_i}P(v_i,h_i;\theta)$可视为一个值，公式\ref{third_eq}可写作
+\begin{equation}
+    \begin{aligned}
+    &- \frac{1}{\sum_{h_i}P(v_i, h_i;\theta)}\mathbb{E}_{(v,h)\sim P(v,h;\theta)}[\nabla_\theta E(v,h;\theta)]-\sum_{h_i}\frac{P(v_i, h_i;\theta)}{P(v_i; \theta)}\nabla_{\theta} E(v_i,h_i;\theta) \\
+    &= - \frac{1}{\sum_{h_i}P(v_i, h_i;\theta)}\mathbb{E}_{(v,h)\sim P(v,h;\theta)}[\nabla_\theta E(v,h;\theta)] - \mathbb{E}_{P(h_i|v_i)}[\nabla_{\theta} E(v_i,h_i;\theta)] \\
+    \end{aligned}
+\end{equation}
+对于单个样本$v_i$，
+\begin{gather*}
+    \nabla_aE(v,h;\theta) = -v \\
+    \nabla_bE(v,h;\theta) = -h \\
+    \nabla_cE(v,h;\theta) = -v^Th \\
+\end{gather*}
+则，
+\begin{gather*}
+    \mathbb{E}[\nabla_aE(v,h;\theta)] = -E[V] \\
+    \mathbb{E}[\nabla_bE(v,h;\theta)] = -E[H] \\
+    \mathbb{E}[\nabla_cE(v,h;\theta)] = -E[V^TH]  \\
+\end{gather*}
+同样,
+\begin{gather*}
+    \mathbb{E}[\nabla_aE(v_i,h_i;\theta)] = -v_i \\
+    \mathbb{E}[\nabla_bE(v_i,h_i;\theta)] = -h_i \\
+    \mathbb{E}[\nabla_cE(v_i,h_i;\theta)] = -v_i^T h_i \\
+\end{gather*}
+$\theta=(a,b,)$的更新公式为:
+
+\begin{equation}
+    \begin{gathered}
+        a^{t+1} \leftarrow a^t - \alpha(E[V]-v_i) \\
+        b^{t+1} \leftarrow b^t - \alpha(E[H]-h_i) \\
+        c^{t+1} \leftarrow c^t - \alpha(E[V^T H] - v_i^Th_i) \\
+    \end{gathered}
+\end{equation}
+
+
+\begin{algorithm}[htb]
+    \caption{MLE: SGD for Undirected Graphical Model}
+    \label{alg:A10_1}
+    \begin{algorithmic}[1]
+    \REQUIRE
+    $D=\{v_i\}_{i=1}^n$;\\
+    \ENSURE 
+    $\Theta=(a,b,C)$; \\
+    \STATE init: $a,b,C$
+    \REPEAT 
+    \STATE $a^{t+1} \leftarrow a^t - \alpha(E[V]-v_i)$
+    \STATE $b^{t+1} \leftarrow b^t - \alpha(E[H]-h_i)$
+    \STATE $c^{t+1} \leftarrow c^t - \alpha(E[V^T H] - v_i^Th_i)$
+    \UNTIL 
+    \RETURN $\Theta$;
+    \end{algorithmic}
+\end{algorithm}
+
+\subsubsection*{EM算法}
+根据 公式\ref{start_eq} , 有
+\begin{equation*}
+    \ln \sum_{h_i} P(v_i, h_i; \theta)
+    = \ln \sum_{h_i} P(h_i | v_i; \theta) \frac{P(v_i, h_i; \theta)}{P(h_i | v_i; \theta)}
+\end{equation*}
+其中,
+\begin{equation*}
+    \sum_{h_i} P(h_i | v_i; \theta) \frac{P(v_i, h_i; \theta)}{P(h_i | v_i; \theta)} = \mathbb{E}_{h_i\sim P(h_i|v_i;\theta)}[P(v_i|h_i;\theta)]
+\end{equation*}
+根据Jensen不等式，有
+\begin{equation}
+    \begin{aligned}
+        \ln \mathbb{E}_{h_i\sim P(h_i|v_i;\theta)}[P(v_i|h_i;\theta)] 
+        &\leq \mathbb{E}_{h_i\sim P(h_i|v_i;\theta)}[\ln P(v_i|h_i;\theta)]  \\
+        &= \sum_{h_i}  P(h_i | v_i; \theta) \ln \frac{P(v_i, h_i; \theta)}{P(h_i | v_i; \theta)} \\
+        &= \sum_{h_i} P(h_i | v_i; \theta) (\ln P(v_i,h_i;\theta) - \ln P(h_i | v_i; \theta)) \\
+        &= \sum_{h_i} P(h_i | v_i; \theta)(\ln \frac{1}{Z(\theta)} \exp \{-E(v_i,h_i;\theta)\}) - P(h_i | v_i; \theta)\ln P(h_i | v_i; \theta) \\
+        &= \sum_{h_i} P(h_i | v_i; \theta)(-E(v_i,h_i;\theta) -\ln Z(\theta)) - P(h_i | v_i; \theta)\ln P(h_i | v_i; \theta) \\
+    \end{aligned} 
+    \label{jensen_eq}
+\end{equation}
+
+\textbf{E-step}
+
+对$P(h_i | v_i; \theta)$ 求导，构造拉格朗日乘子，
+\begin{equation*}
+    \mathcal{L}(P(h_i | v_i; \theta), \lambda) = \sum_{h_i} P(h_i | v_i; \theta)(-E(v_i,h_i;\theta) -\ln Z(\theta)) - P(h_i | v_i; \theta)\ln P(h_i | v_i; \theta) - \lambda(\sum_{h_i} P(h_i | v_i; \theta)-1)
+\end{equation*}
+对$P(h_i | v_i; \theta)$ 求导，有
+\begin{equation*}
+    \nabla_{P(h_i | v_i; \theta)} \mathcal{L}(P(h_i | v_i; \theta), \lambda)  = -E(v_i,h_i;\theta) -\ln Z(\theta)-\ln P(h_i | v_i; \theta)-1 -\lambda = 0
+\end{equation*}
+则, 
+\begin{equation*}
+    P(h_i | v_i; \theta)*\exp\{1+\lambda\} = \exp\{-E(v_i,h_i;\theta) -\ln Z(\theta) \}
+\end{equation*}
+因为$\sum_{h_i} P(h_i | v_i; \theta) = 1$， 因此
+\begin{equation*}
+    \sum_{h_i} P(h_i | v_i; \theta)* \exp\{1+\lambda\} = \sum_{h_i}\exp\{-E(v_i,h_i;\theta) -\ln Z(\theta) \}
+\end{equation*}
+从而,
+\begin{equation*}
+    \exp\{1+\lambda\} = \sum_{h_i}\exp\{-E(v_i,h_i;\theta) -\ln Z(\theta) \}
+\end{equation*}
+所以,
+\begin{equation*}
+    P(h_i | v_i; \theta) = \frac{exp\{-E(v_i,h_i;\theta) -\ln Z(\theta) \}}{\sum_{h_i}\exp\{-E(v_i,h_i;\theta) -\ln Z(\theta) \}}
+\end{equation*}
+
+
+
+\textbf{M-step}
+
+根据 公式\ref{jensen_eq}，对$\theta$求导，先分别求各项对$\theta$的求导结果
+\begin{gather*}
+    \nabla_aE(v_i,h_i;\theta) = -v_i \\
+    \nabla_bE(v_i,h_i;\theta) = -h_i \\
+    \nabla_cE(v_i,h_i;\theta) = -v_i^Th_i \\
+    \\
+    \begin{aligned}
+        \frac{\nabla_\theta Z(\theta)}{Z(\theta)} 
+        &= \iint \frac{exp\{-E(v,h;\theta)\}}{Z(\theta)}(-\nabla_\theta E(v,h;\theta)) dv dh   \\
+        &= -\mathbb{E}_{(v,h)\sim P(v,h;\theta)}[\nabla_\theta E(v,h;\theta)]
+    \end{aligned}
+\end{gather*}
+则求导结果为
+\begin{gather*}
+    \nabla_a(\cdot) = \sum_{h_i} P(h_i | v_i; \theta) v_i - E[V] = v_i - E[V] \\
+    \nabla_b(\cdot) = \sum_{h_i} P(h_i | v_i; \theta) h_i - E[H] = \mathbb{E}_{h_i\sim P(h_i|v_i;\theta)}[h_i] - E[H] \\
+    \nabla_c(\cdot) = \sum_{h_i} P(h_i | v_i; \theta) v_i^Th_i - E[V^TH] = \mathbb{E}_{h_i\sim P(h_i|v_i;\theta)}[v_i^Th_i] - E[V^TH] \\
+\end{gather*}
+
+\begin{algorithm}[htb]
+    \caption{EM: SGD for Undirected Graphical Model}
+    \label{alg:A10_2}
+    \begin{algorithmic}[1]
+    \REQUIRE
+    $D=\{v_i\}_{i=1}^n$;\\
+    \ENSURE 
+    $\Theta=(a,b,C)$; \\
+    \STATE init: $a,b,C$
+    \REPEAT 
+    \STATE \textbf{E-step}
+    \STATE \quad \quad $P(h_i | v_i; \theta) = \frac{exp\{-E(v_i,h_i;\theta) -\ln Z(\theta) \}}{\sum_{h_i}\exp\{-E(v_i,h_i;\theta) -\ln Z(\theta) \}}$
+    \STATE \textbf{M-step}
+    \STATE \quad \quad $a^{t+1} \leftarrow a^t - \alpha(E[V]-v_i)$
+    \STATE \quad \quad $b^{t+1} \leftarrow b^t - \alpha(E[H]-\mathbb{E}_{h_i\sim P(h_i|v_i;\theta)}[h_i])$
+    \STATE \quad \quad $c^{t+1} \leftarrow c^t - \alpha(E[V^T H] - \mathbb{E}_{h_i\sim P(h_i|v_i;\theta)}[v_i^Th_i])$
+    \UNTIL 
+    \RETURN $\Theta$;
+    \end{algorithmic}
+\end{algorithm}
+
 
 \end{document}
 
